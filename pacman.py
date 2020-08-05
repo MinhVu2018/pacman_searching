@@ -213,7 +213,40 @@ def BFS(adjacency_list, begin, food_position):
                 esc_time += l
             return esc_time, expand_nodes, pathtoexit
     return None, None, None
+# Depth First Search
+def DFS(adjacency_list, begin, food_position):
+    expand_nodes = []
+    parent = []
+    pathtoexit = []
+
+    parent = []
+    for i in range(len(adjacency_list)):
+        parent.append(-1)
+    if begin == food_position:
+        return 0, expand_nodes, pathtoexit
+    stack = []
+    stack.append(begin)
+
+    while (stack):
+        current_n = stack.pop()
+        expand_nodes.append(current_n)
+
+        for adjacency_node in adjacency_list[current_n]:
+            if adjacency_node[0] not in expand_nodes:
+                stack.append(adjacency_node[0])
+                parent[adjacency_node[0]] = current_n
         
+        if (current_n == food_position):
+            while parent[current_n] != -1:
+                pathtoexit.append(current_n)
+                current_n = parent[current_n]
+            pathtoexit.append(current_n)
+            pathtoexit.reverse()
+            esc_time = 0
+            for l in  range(len(pathtoexit)):
+                esc_time += l
+            return esc_time, expand_nodes, pathtoexit
+    return None, None, None       
 ### Iterative deepening search
 # Depth-limited search
 def DLS(adjacency_list, food_pos, explored, parent, current_path, depth):
@@ -286,6 +319,7 @@ create_maze(lst, n)
 
 
 #t, explored_ns, path_found = IDS(full, pacman_position, food_position[0], n * m)
+#t, explored_ns, path_found = DFS(full, pacman_position, food_position[0])
 t, explored_ns, path_found = BFS(full, pacman_position, food_position[0])
 path_found.pop(0)
 
