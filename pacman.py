@@ -180,11 +180,16 @@ class food(object):
 # maze.run()
 
 # Breadth first search
-def BFS(adjacency_list, parent, begin, food_pos):
+def BFS(adjacency_list, begin, food_position):
     expand_nodes = []
+    parent = []
     pathtoexit = []
 
-
+    parent = []
+    for i in range(len(adjacency_list)):
+        parent.append(-1)
+    if begin == food_position:
+        return 0, expand_nodes, pathtoexit
     qu = queue.Queue()
     qu.put(begin)
 
@@ -192,19 +197,22 @@ def BFS(adjacency_list, parent, begin, food_pos):
         current_n = qu.get()
         expand_nodes.append(current_n)
 
-        for adjacency_node in adjacency_list[current_n[-1]]:
+        for adjacency_node in adjacency_list[current_n]:
             if adjacency_node[0] not in expand_nodes:
                 qu.put(adjacency_node[0])
                 parent[adjacency_node[0]] = current_n
         
-        if (current_n == food_pos):
+        if (current_n == food_position):
             while parent[current_n] != -1:
                 pathtoexit.append(current_n)
                 current_n = parent[current_n]
             pathtoexit.append(current_n)
             pathtoexit.reverse()
-            return expand_nodes, pathtoexit
-    return None, None
+            esc_time = 0
+            for l in  range(len(pathtoexit)):
+                esc_time += l
+            return esc_time, expand_nodes, pathtoexit
+    return None, None, None
         
 ### Iterative deepening search
 # Depth-limited search
@@ -277,7 +285,8 @@ def create_maze(lst, n):
 create_maze(lst, n)
 
 
-t, explored_ns, path_found = IDS(full, pacman_position, food_position[0], n * m)
+#t, explored_ns, path_found = IDS(full, pacman_position, food_position[0], n * m)
+t, explored_ns, path_found = BFS(full, pacman_position, food_position[0])
 path_found.pop(0)
 
 for p in path_found:
