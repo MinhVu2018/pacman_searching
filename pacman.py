@@ -295,6 +295,65 @@ def IDS(adjacency_list, current_position, food_position, max_depth):
 
     return None, None, None
 
+#calculate the manhattan heuristic from current position to food position
+def get_manhattan_heuristic(current_position, food_position, maze_size):    
+    cur_x, cur_y = divmod(int(current_position), maze_size)    
+    exit_x, exit_y = divmod(int(food_position), maze_size)    
+    x_delta = abs(cur_x - exit_x)    
+    y_delta = abs(cur_y - exit_y)    
+    
+    manhattan_dist = x_delta + y_delta    
+    return manhattan_dist 
+
+# A* Search
+def A_Star(adjacency_list, current_position, food_position, maze_size):
+    explored_nodes = []
+    frontier = []
+    p_found = []
+
+    if current_position == food_position:
+        return len(explored_nodes), explored_nodes, p_found
+
+    parent_list = [-1]*len(adjacency_list)
+    frontier.append((0,current_position))
+
+    while len(frontier) != 0:
+        out_node = frontier.pop(0)
+        node_fcost = out_node[0]
+        node_value = out_node[1]
+        node_hcost = get_manhattan_heuristic(node_value, food_position, maze_size)
+        node_gcost = node_fcost - node_hcost
+
+        explored_nodes.append(node_value)
+
+        if food_position == node_value:
+            while parent_list[node_value] != -1:
+                p_found.append(node_value)
+                node_value = parent_list[node_value]
+            p_found.append(node_value)
+            p_found.reverse()            
+            time_to_escape = len(explored_nodes)
+            return time_to_escape, explored_nodes, p_found
+        
+        else:
+            for node in adjacency_list[node_value]:
+                if node[0] not in explored_nodes:
+                    node_list = []
+                    for i in frontier:
+                        node_list.append(i[1])
+                    if node[0] not in node_list:
+                        frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size), node[0]))
+                        parent_list[node[0]] = node_value
+                        frontier.sort()
+                    if node in node_list:
+                        index = node_list.index(node)
+                        cost = frontier[index][0]
+                        if cost > node_gcost + 1 + get_manhattan_heuristic(frontier[index][1], food_position, maze_size):
+                            frontier.pop(frontier[index])
+                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size), node[0]))
+                            frontier.sort()
+                            parent_list[node[0]] = node_value
+    return "", "", ""
 
 ### 
 top = Tk()
@@ -320,7 +379,8 @@ create_maze(lst, n)
 
 #t, explored_ns, path_found = IDS(full, pacman_position, food_position[0], n * m)
 #t, explored_ns, path_found = DFS(full, pacman_position, food_position[0])
-t, explored_ns, path_found = BFS(full, pacman_position, food_position[0])
+#t, explored_ns, path_found = BFS(full, pacman_position, food_position[0])
+t, explored_ns, path_found = A_Star(full, pacman_position, food_position[0], n)
 path_found.pop(0)
 
 for p in path_found:
