@@ -2,6 +2,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 import math
 import os
+import queue
 import time
 
 UserInput = "map1.txt"	#input("Enter input file: ")
@@ -177,6 +178,33 @@ class food(object):
 # maze = App()
 # maze.Play()
 # maze.run()
+
+# Breadth first search
+def BFS(adjacency_list, parent, begin, food_pos):
+    expand_nodes = []
+    pathtoexit = []
+
+
+    qu = queue.Queue()
+    qu.put(begin)
+
+    while (qu.empty() == False):
+        current_n = qu.get()
+        expand_nodes.append(current_n)
+
+        for adjacency_node in adjacency_list[current_n[-1]]:
+            if adjacency_node[0] not in expand_nodes:
+                qu.put(adjacency_node[0])
+                parent[adjacency_node[0]] = current_n
+        
+        if (current_n == food_pos):
+            while parent[current_n] != -1:
+                pathtoexit.append(current_n)
+                current_n = parent[current_n]
+            pathtoexit.append(current_n)
+            pathtoexit.reverse()
+            return expand_nodes, pathtoexit
+    return None, None
         
 ### Iterative deepening search
 # Depth-limited search
