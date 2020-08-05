@@ -3,7 +3,7 @@ from PIL import ImageTk, Image
 import math
 import os
 
-UserInput = "pacmanmaze.txt"	#input("Enter input file: ")
+UserInput = "map1.txt"	#input("Enter input file: ")
 lst = []
 f = open(UserInput, "r")
 
@@ -16,6 +16,40 @@ for v in f.readlines():
 n = lst[0][0]
 m = lst[0][1]
 lst.pop(0)
+
+data = []
+
+for number in range(n*m):
+	y = number // n
+	x = number % n
+	data.append( (number, lst[x][y]) )
+
+full = []
+
+for i in range(n*m):
+	if data[i][1] == 1:	#wall
+		full.append(None)
+
+	elif data[i][1] == 3: #monster
+		full.append(None)
+
+	else:	# road or food
+		temp = []
+		if  ( data[i-n][1] == 0 or data[i-n][1] == 2 ):
+			temp.append(data[i-n])
+		if ( data[i-1][1] == 0 or data[i-1][1] == 2 ):
+			temp.append(data[i-1])
+		if ( data[i+1][1] == 0 or data[i+1][1] == 2 ):
+			temp.append(data[i+1])
+		if ( data[i+n][1] == 0 or data[i+n][1] == 2 ):
+			temp.append(data[i+n])
+
+		full.append(temp)
+
+print(full, sep = '\n')
+
+
+
 
 class pacman(object):
 	def __init__(self, imgpath):
