@@ -2,6 +2,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 import math
 import os
+import time
 
 UserInput = "map1.txt"	#input("Enter input file: ")
 lst = []
@@ -15,22 +16,35 @@ for v in f.readlines():
 
 n = lst[0][0]
 m = lst[0][1]
+
+pacman_x = lst[-1][0]
+pacman_y = lst[-1][1]
+pacman_position = -1
+
+food_position = []
+
 lst.pop(0)
 
+# Convert maze to (node, prop)
 data = []
 
 for number in range(n*m):
-	y = number // n
-	x = number % n
-	data.append( (number, lst[x][y]) )
+    x = number // n
+    y = number % n
+    if x == pacman_x and y == pacman_y:
+        pacman_position = number
+    if lst[y][x] == 2:
+        food_position.append(number)
+    data.append( (number, lst[y][x]) )
 
+# Adjacency list
 full = []
 
 for i in range(n*m):
-	if data[i][1] == 1:	#wall
+	if data[i][1] == 1:	# wall
 		full.append(None)
 
-	elif data[i][1] == 3: #monster
+	elif data[i][1] == 3: # monster
 		full.append(None)
 
 	else:	# road or food
@@ -46,11 +60,7 @@ for i in range(n*m):
 
 		full.append(temp)
 
-print(full, sep = '\n')
-
-
-
-
+# Pacman object
 class pacman(object):
 	def __init__(self, imgpath):
 		self.img = Image.open(imgpath)
@@ -94,6 +104,7 @@ class pacman(object):
 		elif keysym == 'Escape':
 			self.display(x+25, y+25, C)
 
+# Monster object
 class monster(object):
 	def __init__(self, imgpath):
 		temp = Image.open(imgpath)
@@ -108,6 +119,7 @@ class monster(object):
 		self.y = y
 		C.create_image(x, y, image = self.img, anchor = 'nw')
 
+# Food object
 class food(object):
 	def __init__(self, imgpath):
 		temp = Image.open(imgpath)
@@ -165,7 +177,57 @@ class food(object):
 # maze = App()
 # maze.Play()
 # maze.run()
+        
+### Iterative deepening search
+# Depth-limited search
+def DLS(adjacency_list, food_pos, explored, parent, current_path, depth):
+    if current_path[-1] == food_pos:
+        return True
+    elif depth == 0: 
+        return False
+    
+    for adjacency_node in adjacency_list[current_path[-1]]:
+        if adjacency_node[0] not in current_path:
+            parent[adjacency_node[0]] = current_path[-1]
+            current_path.append(adjacency_node[0])
+            explored.append(adjacency_node[0])
+            result = DLS(adjacency_list, food_pos, explored, parent, current_path, depth - 1)
+            if result == True:
+                return True
+            current_path.pop()
+    return False
+        
 
+# Iterative deepning search
+def IDS(adjacency_list, current_position, food_position, max_depth):
+    explored_ns = [] # List of explored nodes
+    path_fd = [] # List of nodes on the path found
+
+    if current_position == food_position:
+        return 0, explored_ns, path_fd
+
+    for depth in range(max_depth - 1):
+        parent = [-1] * len(adjacency_list)
+        explored = [current_position]
+        current_path = [current_position]
+        result = DLS(adjacency_list, food_position, explored, parent, current_path, depth)
+        explored_ns.append(explored)
+        if result == True:
+            cur_node = current_path[-1]
+            while parent[cur_node] != -1:
+                path_fd.append(cur_node)
+                cur_node = parent[cur_node]
+            path_fd.append(cur_node)
+            path_fd.reverse()
+            esc_time = 0
+            for l in explored_ns:
+                esc_time += len(l)
+            return esc_time, explored_ns, path_fd
+
+    return None, None, None
+
+
+### 
 top = Tk()
 C = Canvas(top, height = n*25, width = m*25, background = 'black')
 C.pack()
@@ -186,8 +248,52 @@ def create_maze(lst, n):
 
 create_maze(lst, n)
 
-def key_pressed(event):
-	pacman.move(event.keysym, C)
 
-top.bind("<Key>", key_pressed)
+t, explored_ns, path_found = IDS(full, pacman_position, food_position[0], n * m)
+path_found.pop(0)
+
+for p in path_found:
+    p_x = p // n
+    p_y = p % n
+    # Check right
+    if p_x == pacman_x + 1 and p_y == pacman_y:
+        pacman_x = p_x
+        pacman_y = p_y
+        pacman_position = p
+        pacman.move('Right', C)
+        time.sleep(0.5)
+        top.update()
+        
+    # Check left 
+    elif p_x == pacman_x - 1 and p_y == pacman_y:
+        pacman_x = p_x
+        pacman_y = p_y
+        pacman_position = p
+        pacman.move('Left', C)
+        time.sleep(0.5)
+        top.update()
+    
+    # Check up
+    elif p_x == pacman_x and p_y == pacman_y - 1:
+        pacman_x = p_x
+        pacman_y = p_y
+        pacman_position = p
+        pacman.move('Up', C)
+        time.sleep(0.5)
+        top.update()
+    
+    # Check down
+    elif p_x == pacman_x and p_y == pacman_y + 1:
+        pacman_x = p_x
+        pacman_y = p_y
+        pacman_position = p
+        pacman.move('Down', C)
+        time.sleep(0.5)
+        top.update()
+
+
+#def key_pressed(event):
+#	pacman.move(event.keysym, C)
+
+#top.bind("<Key>", key_pressed)
 top.mainloop()
