@@ -17,7 +17,7 @@ def drawDot(screen, x, y):
     screen.blit(dotImg, (x, y))
 
 def main():
-    UserInput = "pacmanmaze.txt"	#input("Enter input file: ")
+    UserInput = "map1.txt"	#input("Enter input file: ")
     lst = []
     f = open(UserInput, "r")
 
@@ -32,20 +32,21 @@ def main():
     
     pacman_row = lst[-1][0]
     pacman_col = lst[-1][1]
+    print(pacman_row, pacman_col)
     
     lst.pop(0)
     
     ## Init pygame
-    width = 1000
-    height = 800
     tile_size = 32
+    height = maze_row * tile_size
+    width = maze_col * tile_size
     
     BLACK = (0, 0, 0)
     BLUE = (0, 0, 255)
     WHITE = (255, 255, 255)
     
     pygame.init()
-    screen = pygame.display.set_mode((width, height), 0, 32) #pygame.display.set_mode(resolution=(w,h), flags=0, depth=32)
+    screen = pygame.display.set_mode((width, height), 0, tile_size) #pygame.display.set_mode(resolution=(w,h), flags=0, depth=32)
     
     pygame.display.set_icon(pygame.image.load("pacmanlogo32.png"))
     pygame.display.set_caption("Pacman Search")
@@ -57,8 +58,6 @@ def main():
         for j in range(maze_col):
             if lst[i][j] == 1:
                 pygame.draw.rect(screen, BLUE, (j * tile_size, i * tile_size, tile_size, tile_size))
-            elif (i , j) == (pacman_row, pacman_col):
-                drawPacman(screen, j * tile_size, i * tile_size)
             elif lst[i][j] == 3:
                 if check_redg == 0:
                     drawRedMonster(screen, j * tile_size, i * tile_size)
@@ -68,6 +67,7 @@ def main():
                     check_redg = 0
             else:
                 drawDot(screen, j * tile_size, i * tile_size)
+    drawPacman(screen, pacman_row * tile_size, pacman_col * tile_size)
                 
    
     running = True
