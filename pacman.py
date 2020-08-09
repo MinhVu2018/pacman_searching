@@ -7,7 +7,7 @@ from Objects import *
 def random_Maze():
     n = np.random.randint(5, 30)
     m = np.random.randint(5, 30)
-    maze_temp = np.random.randint(3, size=(n, m))
+    maze_temp = np.random.randint(4, size=(n, m))
     for i in range (n):
         for j in range (m):
             if(i == 0 or i == n - 1 or j == 0 or j == m - 1):
