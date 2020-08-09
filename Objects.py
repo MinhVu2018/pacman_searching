@@ -13,7 +13,7 @@ class pacman(object):
         self.left = img2.rotate(180)
         self.up = img2.rotate(90)
 
-        self.img = ImageTk.PhotoImage(img2, format="gif -index 2")
+        self.img = ImageTk.PhotoImage(img2)
         self.x = x
         self.y = y
         self.index = x*n + y

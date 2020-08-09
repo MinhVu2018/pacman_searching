@@ -7,11 +7,19 @@ from Objects import *
 def random_Maze():
     n = np.random.randint(5, 30)
     m = np.random.randint(5, 30)
-    maze_temp = np.random.randint(4, size=(n, m))
+    maze_temp = np.random.randint(3, size=(n, m))
     for i in range (n):
         for j in range (m):
             if(i == 0 or i == n - 1 or j == 0 or j == m - 1):
                 maze_temp[i][j] = 1
+    for i in range(np.random.randint(0,5)):
+        g_x = 0
+        g_y = 0
+        while (maze_temp[g_y][g_x] != 0):
+            g_x = np.random.randint(1, m - 1)
+            g_y = np.random.randint(1, n - 1)
+        maze_temp[g_y][g_x] = 3
+
     lst = []
     lst.append([n,m])
 
@@ -23,7 +31,7 @@ def random_Maze():
     while (maze_temp[p_y][p_x] != 0):
         p_x = np.random.randint(1, m - 1)
         p_y = np.random.randint(1, n - 1)
-    
+
     lst.append([p_x, p_y])
     return lst
 
