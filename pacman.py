@@ -1,19 +1,45 @@
 from tkinter import *
 from tkinter import messagebox
-
+import numpy as np
 from Searching_Algorithm import *
 from Objects import *
 
+def random_Maze():
+    n = np.random.randint(5, 30)
+    m = np.random.randint(5, 30)
+    maze_temp = np.random.randint(3, size=(n, m))
+    for i in range (n):
+        for j in range (m):
+            if(i == 0 or i == n - 1 or j == 0 or j == m - 1):
+                maze_temp[i][j] = 1
+    lst = []
+    lst.append([n,m])
+
+    for i in range(n):
+        lst.append(list(maze_temp[i]))
+
+    p_x = 0
+    p_y = 0
+    while (maze_temp[p_y][p_x] != 0):
+        p_x = np.random.randint(1, m - 1)
+        p_y = np.random.randint(1, n - 1)
+    
+    lst.append([p_x, p_y])
+    return lst
+
+
 def handle_input():
     global lst
-    UserInput = "map3.txt"  #input("Enter input file: ")
-    f = open(UserInput, "r")
+    # UserInput = "map3.txt"  #input("Enter input file: ")
+    # f = open(UserInput, "r")
 
-    for v in f.readlines():
-        v = v.strip().split(' ')
-        v = [int(i) for i in v]
+    # for v in f.readlines():
+    #     v = v.strip().split(' ')
+    #     v = [int(i) for i in v]
         
-        lst.append(v)
+    #     lst.append(v)
+    lst = random_Maze()
+
 
 def create_maze(C):
     for i in range(n):
