@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+import copy
 import numpy as np
 from Searching_Algorithm import *
 from Objects import *
@@ -103,16 +104,96 @@ def create_data(C):
                 temp.append(data[i+n])
 
             ListAdjacency.append(temp)
+            
+    for g in ListGhost:
+        Adjacent_Pos = [g.index - n, g.index - n - 1, g.index - n + 1, g.index - 1, g.index + 1, 
+                        g.index + n - 1, g.index + n, g.index + n + 1]
+        MoveableFromInitLocation = []
+        
+        for i in Adjacent_Pos:
+            x = i // n
+            y = i % n
+            if (x >= 0 and y >= 0) and (x <= m - 1 and y <= n - 1):
+                if lst[y][x] == 0 or lst[y][x] == 3:
+                    MoveableFromInitLocation.append(i)
+                    
+        MoveableFromInitLocation.append(g.index)
+        
+        ListMoveableFromInitLocation_Ghost.append(MoveableFromInitLocation)
+        
+def update_adjacent_list(C):
+    ListAdjacency = []
+    # Convert maze to (node, prop)
+    data = []
+
+    for number in range(n*m):
+        x = number // n
+        y = number % n
+        if lv == 1 and lst[y][x] == 3: # monster at lv1
+            data.append( (number, 0) )
+        else:
+            data.append( (number, lst[y][x]) )
+
+    for i in range(n*m):
+        
+        if data[i][1] == 1: # wall
+            ListAdjacency.append(None)
+
+        elif data[i][1] == 3 : # monster
+            ListAdjacency.append(None)
+
+        else:   # road or food
+            temp = []
+            if  ( data[i-n][1] == 0 or data[i-n][1] == 2 ):
+                temp.append(data[i-n])
+            if ( data[i-1][1] == 0 or data[i-1][1] == 2 ):
+                temp.append(data[i-1])
+            if ( data[i+1][1] == 0 or data[i+1][1] == 2 ):
+                temp.append(data[i+1])
+            if ( data[i+n][1] == 0 or data[i+n][1] == 2 ):
+                temp.append(data[i+n])
+
+            ListAdjacency.append(temp)
 
 def RunAlgorithm():
     while len(ListFood):
         sort_Food()
-        path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-       
-        p.path_move(path, C, n, top)
-        
+        #while p.index != ListFood[0].index:
+        path = IDS(ListAdjacency, p.index, ListFood[0].index, n * m)[2]
+        if path == None:
+            count_None = 1
+            while path == None and count_None < len(ListFood):
+                found = 0
+                for f in range(1, len(ListFood)):
+                    path_to_other_goal = IDS(ListAdjacency, p.index, ListFood[f].index, n * m)[2]
+                    if path_to_other_goal != None:
+                        tmp = copy.deepcopy(ListFood[0])
+                        ListFood[0] = copy.deepcopy(ListFood[f])
+                        ListFood[f] = copy.deepcopy(tmp)
+                        path = path_to_other_goal
+                        found = 1
+                        break
+                if found == 1:
+                    break
+                count_None += 1
+        else:
+            while p.index != ListFood[0].index:
+                path = IDS(ListAdjacency, p.index, ListFood[0].index, n * m)[2]
+                p.path_move([path[1]], C, n, top)
+                for g in ListGhost:
+                    cur_x = g.index // n
+                    cur_y = g.index % n
+                    lst[cur_y][cur_x] = 0
+                    ghost_new_position = g.move_around_initpos(ListMoveableFromInitLocation_Ghost[ListGhost.index(g)], C, n, top)
+                    new_x = ghost_new_position // n
+                    new_y = ghost_new_position % n
+                    lst[new_y][new_x] = 3
+                    update_adjacent_list(C)
+            
+            
         ListFood[0].destroy(C)
         del ListFood[0]
+        
         top.update()
 
 def sort_Food():
@@ -133,13 +214,14 @@ def key_pressed(event):
 def Play():
     global top, C, p
     global unit, n, m
-    global lst, ListGhost, ListAdjacency, ListFood
+    global lst, ListGhost, ListAdjacency, ListFood, ListMoveableFromInitLocation_Ghost
     top = Tk()
     unit = 25
     lst = []
     ListGhost = []
     ListAdjacency = []
     ListFood = []
+    ListMoveableFromInitLocation_Ghost = []
 
     handle_input()
     # maze_size
@@ -259,4 +341,4 @@ def Start(level):
     C.pack()
     menu.mainloop()
 
-Start(1)
+Start(2)
