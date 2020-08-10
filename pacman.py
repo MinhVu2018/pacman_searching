@@ -38,7 +38,7 @@ def random_Maze():
 
 def handle_input():
     global lst
-    # UserInput = "map3.txt"  #input("Enter input file: ")
+    # UserInput = "map2.txt"  #input("Enter input file: ")
     # f = open(UserInput, "r")
 
     # for v in f.readlines():
