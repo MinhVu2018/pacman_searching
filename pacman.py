@@ -5,6 +5,8 @@ import numpy as np
 from Searching_Algorithm import *
 from Objects import *
 
+# global lst, ListGhost, ListAdjacency, ListFood
+
 def random_Maze():
     n = np.random.randint(5, 30)
     m = np.random.randint(5, 30)
@@ -13,7 +15,7 @@ def random_Maze():
         for j in range (m):
             if(i == 0 or i == n - 1 or j == 0 or j == m - 1):
                 maze_temp[i][j] = 1
-    for i in range(np.random.randint(0,5)):
+    for i in range(np.random.randint(2,5)):
         g_x = 0
         g_y = 0
         while (maze_temp[g_y][g_x] != 0):
@@ -38,7 +40,7 @@ def random_Maze():
 
 def handle_input():
     global lst
-    # UserInput = "map2.txt"  #input("Enter input file: ")
+    # UserInput = "map3.txt"  #input("Enter input file: ")
     # f = open(UserInput, "r")
 
     # for v in f.readlines():
@@ -104,8 +106,7 @@ def create_data(C):
             ListAdjacency.append(temp)
             
     for g in ListGhost:
-        Adjacent_Pos = [g.index - n, g.index - n - 1, g.index - n + 1, g.index - 1, g.index + 1, 
-                        g.index + n - 1, g.index + n, g.index + n + 1]
+        Adjacent_Pos = [g.index - n, g.index + n, g.index - n - 1, g.index - n + 1, g.index - 1, g.index + 1, g.index + n - 1, g.index + n + 1, g.index]
         MoveableFromInitLocation = []
         
         for i in Adjacent_Pos:
@@ -154,42 +155,75 @@ def update_adjacent_list(C):
 def RunAlgorithm():
     while len(ListFood):
         sort_Food()
-        #while p.index != ListFood[0].index:
         path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-        if path == None:
-            count_None = 1
-            while path == None and count_None < len(ListFood):
-                found = 0
-                for f in range(1, len(ListFood)):
-                    path_to_other_goal = A_Star(ListAdjacency, p.index, ListFood[f].index, n)[2]
-                    if path_to_other_goal != None:
-                        tmp = copy.deepcopy(ListFood[0])
-                        ListFood[0] = copy.deepcopy(ListFood[f])
-                        ListFood[f] = copy.deepcopy(tmp)
-                        path = path_to_other_goal
-                        found = 1
-                        break
-                if found == 1:
-                    break
-                count_None += 1
-        else:
-            while p.index != ListFood[0].index:
-                path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-                p.path_move([path[1]], C, n, top)
-                for g in ListGhost:
-                    cur_x = g.index // n
-                    cur_y = g.index % n
-                    lst[cur_y][cur_x] = 0
-                    ghost_new_position = g.move_around_initpos(C, n, top)
-                    new_x = ghost_new_position // n
-                    new_y = ghost_new_position % n
-                    lst[new_y][new_x] = 3
-                    update_adjacent_list(C)
-            
-        ListFood[0].destroy(C)
-        del ListFood[0]
         
-        top.update()
+        if len(path)==0 :
+            # ListFood[0].destroy(C)
+            ListFood.remove(ListFood[0])
+            if len(ListFood) == 0:
+                break
+            path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+
+        while len(path):
+            path.remove(path[0])
+            p.path_move(path[0], C, n)
+
+            for food_index in range(len(ListFood)):
+                if ListFood[food_index].index == path[0]:
+                    ListFood[food_index].destroy(C)
+                    del ListFood[food_index]
+                    break
+
+            sort_Food()
+            if len(ListFood) == 0:
+                break
+            path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+            #move_ghost lv 3 4
+            if lv > 2:
+                for g in ListGhost:
+                    g.move_around_initpos(C, n)
+
+            time.sleep(0.2)
+            top.update()
+
+    # while len(ListFood):
+    #     sort_Food()
+    #     #while p.index != ListFood[0].index:
+    #     path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+    #     if path == None:
+    #         count_None = 1
+    #         while path == None and count_None < len(ListFood):
+    #             found = 0
+    #             for f in range(1, len(ListFood)):
+    #                 path_to_other_goal = A_Star(ListAdjacency, p.index, ListFood[f].index, n)[2]
+    #                 if path_to_other_goal != None:
+    #                     tmp = copy.deepcopy(ListFood[0])
+    #                     ListFood[0] = copy.deepcopy(ListFood[f])
+    #                     ListFood[f] = copy.deepcopy(tmp)
+    #                     path = path_to_other_goal
+    #                     found = 1
+    #                     break
+    #             if found == 1:
+    #                 break
+    #             count_None += 1
+    #     else:
+    #         while p.index != ListFood[0].index:
+    #             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+    #             p.path_move([path[1]], C, n, top)
+    #             for g in ListGhost:
+    #                 cur_x = g.index // n
+    #                 cur_y = g.index % n
+    #                 lst[cur_y][cur_x] = 0
+    #                 ghost_new_position = g.move_around_initpos(C, n, top)
+    #                 new_x = ghost_new_position // n
+    #                 new_y = ghost_new_position % n
+    #                 lst[new_y][new_x] = 3
+    #                 update_adjacent_list(C)
+            
+    #     ListFood[0].destroy(C)
+    #     del ListFood[0]
+        
+    #     top.update()
 
 def sort_Food():
     ListFood.sort(key = lambda k: abs(k.x-p.x) + abs(k.y - p.y))
@@ -335,4 +369,4 @@ def Start(level):
     C.pack()
     menu.mainloop()
 
-Start(2)
+Start(3)

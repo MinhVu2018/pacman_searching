@@ -3,7 +3,6 @@ import time, random
 unit = 25
 # Pacman object
 class pacman(object):
-
     def __init__(self, imgpath, x, y, n):
         temp = Image.open(imgpath)
         img2 = temp.resize((25, 25), Image.ANTIALIAS)
@@ -26,7 +25,6 @@ class pacman(object):
         self.pic = C.create_image(self.x * unit, self.y * unit, image = self.img, anchor = 'nw')
 
     def key_move(self, keysym, C, n):
-
         if keysym == "Right":
             self.x += 1
             self.index += n
@@ -46,27 +44,19 @@ class pacman(object):
 
         self.display(C)
 
-    def path_move(self, path, C, n, tkinter):
+    def path_move(self, path, C, n):
+        if path == self.index + n:  # right
+            self.key_move("Right", C, n)
 
-        for i in path:
+        elif path == self.index - n:  # left
+            self.key_move("Left", C, n)
 
-            if i == self.index + n:  # right
-                self.key_move("Right", C, n)
-                time.sleep(self.speed)
-                tkinter.update()
-            elif i == self.index - n:  # left
-                self.key_move("Left", C, n)
-                time.sleep(self.speed)
-                tkinter.update()
-            elif i == self.index - 1:  # up
-                self.key_move("Up", C, n)
-                time.sleep(self.speed)
-                tkinter.update()
-            elif i == self.index + 1:  # down
-                self.key_move("Down", C, n)
-                time.sleep(self.speed)
-                tkinter.update()
-            # else is == 
+        elif path == self.index - 1:  # up
+            self.key_move("Up", C, n)
+
+        elif path == self.index + 1:  # down
+            self.key_move("Down", C, n)
+
 
 # Monster object
 class monster(object):
@@ -119,26 +109,22 @@ class monster(object):
         
         self.display(C)
         
-    def move_around_initpos(self, C, n, tkinter):
+    def move_around_initpos(self, C, n):
         random_move = random.choice(self.MoveList)
         
         if random_move == self.index + n:  # right
             self.move("Right", C, n)
-            tkinter.update()
         elif random_move == self.index - n:  # left
             self.move("Left", C, n)
-            tkinter.update()
         elif random_move == self.index - 1:  # up
             self.move("Up", C, n)
-            tkinter.update()
         elif random_move == self.index + 1:  # down
             self.move("Down", C, n)
-            tkinter.update()
-            
         else: 
             random_move = self.index
 
-        return random_move
+        # return random_move
+
 
 # Food object
 class food(object):

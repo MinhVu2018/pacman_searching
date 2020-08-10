@@ -177,4 +177,3 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                             frontier.sort()
                             parent_list[node[0]] = node_value
     return "", "", ""
-
