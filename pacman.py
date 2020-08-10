@@ -153,6 +153,9 @@ def update_adjacent_list(C):
             ListAdjacency.append(temp)
 
 def RunAlgorithm():
+    score = 0
+    label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
+                                     font=('Arial',20,'bold'))
     while len(ListFood):
         sort_Food()
         path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
@@ -167,9 +170,16 @@ def RunAlgorithm():
         while len(path):
             path.remove(path[0])
             p.path_move(path[0], C, n)
-
+            score -= 1
+            C.delete(label_id)
+            label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
+                                     font=('Arial',20,'bold'))
             for food_index in range(len(ListFood)):
                 if ListFood[food_index].index == path[0]:
+                    score += 20
+                    C.delete(label_id)
+                    label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
+                                     font=('Arial',20,'bold'))
                     ListFood[food_index].destroy(C)
                     del ListFood[food_index]
                     break
@@ -185,7 +195,10 @@ def RunAlgorithm():
 
             time.sleep(0.2)
             top.update()
-
+        score += 20
+        C.delete(label_id)
+        label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
+                                     font=('Arial',20,'bold'))
     # while len(ListFood):
     #     sort_Food()
     #     #while p.index != ListFood[0].index:
@@ -258,7 +271,15 @@ def Play():
     lst.pop(0)
 
     top.title("Pacman")
-    C = Canvas(top, height = n*unit, width = m*unit, background = 'black')
+    C = Canvas(top, height = n*unit, width = m*unit + 10*unit, background = 'black')
+    C.create_text(m*unit + 3*unit, n*unit/2 - 2*unit, fill = "#f61818", text = "S", font=('Arial',20,'bold'))
+    C.create_text(m*unit + 4*unit, n*unit/2 - 2*unit, fill = "#1a98f6", text = "C", font=('Arial',20,'bold'))
+    C.create_text(m*unit + 5*unit, n*unit/2 - 2*unit, fill = "#e3f00c", text = "O", font=('Arial',20,'bold'))
+    C.create_text(m*unit + 6*unit, n*unit/2 - 2*unit, fill = "#1ce70a", text = "R", font=('Arial',20,'bold'))
+    C.create_text(m*unit + 7*unit, n*unit/2 - 2*unit, fill = "#f2ba0e", text = "E", font=('Arial',20,'bold'))
+    C.create_text(m*unit + 5*unit, n*unit/2 + 2*unit, fill = "white", text = "Press ENTER to play", font=('System', 10, 'bold'))
+    C.create_text(m*unit + 5*unit, n*unit/2 + 3*unit, fill = "white", text = "Press ESC to return to menu", 
+                  font=('System', 10, 'bold'))
     C.pack()
 
     # pacman position
