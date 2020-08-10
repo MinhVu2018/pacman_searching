@@ -36,7 +36,6 @@ def random_Maze():
     lst.append([p_x, p_y])
     return lst
 
-
 def handle_input():
     global lst
     # UserInput = "map3.txt"  #input("Enter input file: ")
@@ -48,7 +47,6 @@ def handle_input():
         
     #     lst.append(v)
     lst = random_Maze()
-
 
 def create_maze(C):
     for i in range(n):
@@ -114,12 +112,10 @@ def create_data(C):
             x = i // n
             y = i % n
             if (x >= 0 and y >= 0) and (x <= m - 1 and y <= n - 1):
-                if lst[y][x] == 0 or lst[y][x] == 3:
+                if lst[y][x] != 1:  # not wall
                     MoveableFromInitLocation.append(i)
                     
-        MoveableFromInitLocation.append(g.index)
-        
-        ListMoveableFromInitLocation_Ghost.append(MoveableFromInitLocation)
+        g.MoveList = MoveableFromInitLocation.copy()
         
 def update_adjacent_list(C):
     ListAdjacency = []
@@ -159,13 +155,13 @@ def RunAlgorithm():
     while len(ListFood):
         sort_Food()
         #while p.index != ListFood[0].index:
-        path = IDS(ListAdjacency, p.index, ListFood[0].index, n * m)[2]
+        path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
         if path == None:
             count_None = 1
             while path == None and count_None < len(ListFood):
                 found = 0
                 for f in range(1, len(ListFood)):
-                    path_to_other_goal = IDS(ListAdjacency, p.index, ListFood[f].index, n * m)[2]
+                    path_to_other_goal = A_Star(ListAdjacency, p.index, ListFood[f].index, n)[2]
                     if path_to_other_goal != None:
                         tmp = copy.deepcopy(ListFood[0])
                         ListFood[0] = copy.deepcopy(ListFood[f])
@@ -178,18 +174,17 @@ def RunAlgorithm():
                 count_None += 1
         else:
             while p.index != ListFood[0].index:
-                path = IDS(ListAdjacency, p.index, ListFood[0].index, n * m)[2]
+                path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
                 p.path_move([path[1]], C, n, top)
                 for g in ListGhost:
                     cur_x = g.index // n
                     cur_y = g.index % n
                     lst[cur_y][cur_x] = 0
-                    ghost_new_position = g.move_around_initpos(ListMoveableFromInitLocation_Ghost[ListGhost.index(g)], C, n, top)
+                    ghost_new_position = g.move_around_initpos(C, n, top)
                     new_x = ghost_new_position // n
                     new_y = ghost_new_position % n
                     lst[new_y][new_x] = 3
                     update_adjacent_list(C)
-            
             
         ListFood[0].destroy(C)
         del ListFood[0]
@@ -214,14 +209,13 @@ def key_pressed(event):
 def Play():
     global top, C, p
     global unit, n, m
-    global lst, ListGhost, ListAdjacency, ListFood, ListMoveableFromInitLocation_Ghost
+    global lst, ListGhost, ListAdjacency, ListFood
     top = Tk()
     unit = 25
     lst = []
     ListGhost = []
     ListAdjacency = []
     ListFood = []
-    ListMoveableFromInitLocation_Ghost = []
 
     handle_input()
     # maze_size

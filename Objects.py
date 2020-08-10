@@ -92,11 +92,12 @@ class monster(object):
         self.pic = None
         self.lv = lv
         self.speed = 0.3
+        self.MoveList = []
         
     def display(self, C):
         C.delete(self.pic)
         self.pic = C.create_image(self.x * unit, self.y * unit, image = self.img, anchor = 'nw')
-        
+
     def move(self, direction, C, n):
 
         if direction == "Right":
@@ -118,35 +119,25 @@ class monster(object):
         
         self.display(C)
         
-    def move_around_initpos(self, valid_node, C, n, tkinter):
-        valid_direction = []
-       
-        for i in valid_node:
-            if i == self.index + n or i == self.index - n or i == self.index + 1 or i == self.index - 1:
-                valid_direction.append(i)
-        
-        if len(valid_direction) == 0:
-            return self.index
-        
-        random_move = random.choice(valid_direction)
+    def move_around_initpos(self, C, n, tkinter):
+        random_move = random.choice(self.MoveList)
         
         if random_move == self.index + n:  # right
             self.move("Right", C, n)
-            time.sleep(self.speed)
             tkinter.update()
         elif random_move == self.index - n:  # left
             self.move("Left", C, n)
-            time.sleep(self.speed)
             tkinter.update()
         elif random_move == self.index - 1:  # up
             self.move("Up", C, n)
-            time.sleep(self.speed)
             tkinter.update()
         elif random_move == self.index + 1:  # down
             self.move("Down", C, n)
-            time.sleep(self.speed)
             tkinter.update()
             
+        else: 
+            random_move = self.index
+
         return random_move
 
 # Food object
