@@ -193,17 +193,17 @@ def RunAlgorithm():
             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
             #move_ghost lv 3 4
             if lv > 2:
-                if count_h < 5:
+                if count_h < 3:
                     for g in ListGhost:
                         g.chase_pacman(lst, p.index, C, n)
                     count_h += 1
                     
-                elif count_h == 5 and count_rd < 5:
+                elif count_h == 3 and count_rd < 5:
                     for g in ListGhost:
                         g.ghost_random_move(lst, C, n)
                     count_rd += 1
                 
-                elif count_h == 5 and count_rd == 5:
+                elif count_h == 3 and count_rd == 5:
                     count_h = 0
                     count_rd = 0
                             
