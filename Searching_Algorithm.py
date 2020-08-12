@@ -35,7 +35,7 @@ def BFS(adjacency_list, begin, food_position):
             for l in  range(len(pathtoexit)):
                 esc_time += l
             return esc_time, expand_nodes, pathtoexit
-    return None, None, None
+    return "", "", ""
 # Depth First Search
 def DFS(adjacency_list, begin, food_position):
     expand_nodes = []
@@ -69,7 +69,7 @@ def DFS(adjacency_list, begin, food_position):
             for l in  range(len(pathtoexit)):
                 esc_time += l
             return esc_time, expand_nodes, pathtoexit
-    return None, None, None       
+    return "", "", ""      
 ### Iterative deepening search
 # Depth-limited search
 def DLS(adjacency_list, food_pos, explored, parent, current_path, depth):
@@ -116,7 +116,7 @@ def IDS(adjacency_list, current_position, food_position, max_depth):
                 esc_time += len(l)
             return esc_time, explored_ns, path_fd
 
-    return None, None, None
+    return "", "", ""
 
 #calculate the manhattan heuristic from current position to food position
 def get_manhattan_heuristic(current_position, food_position, maze_size):    
@@ -133,17 +133,16 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
     explored_nodes = []
     frontier = []
     p_found = []
-
     if current_position == food_position:
-        return len(explored_nodes), explored_nodes, p_found
+        return len(explored_nodes), explored_nodes, p_found, 0
 
     parent_list = [-1]*len(adjacency_list)
     frontier.append((0,current_position))
 
     while len(frontier) != 0:
         out_node = frontier.pop(0)
-        node_fcost = out_node[0]
-        node_value = out_node[1]
+        node_fcost = out_node[0]    # cost
+        node_value = out_node[1]    # index
         node_hcost = get_manhattan_heuristic(node_value, food_position, maze_size)
         node_gcost = node_fcost - node_hcost
 
@@ -156,7 +155,8 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
             p_found.append(node_value)
             p_found.reverse()            
             time_to_escape = len(explored_nodes)
-            return time_to_escape, explored_nodes, p_found
+            
+            return time_to_escape, explored_nodes, p_found, node_fcost
         
         else:
             for node in adjacency_list[node_value]:
@@ -165,7 +165,10 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                     for i in frontier:
                         node_list.append(i[1])
                     if node[0] not in node_list:
-                        frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size), node[0]))
+                        if node[1] == 2:
+                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + 20, node[0]))
+                        else:
+                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + node[0], node[0]))
                         parent_list[node[0]] = node_value
                         frontier.sort()
                     if node in node_list:
@@ -173,7 +176,10 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                         cost = frontier[index][0]
                         if cost > node_gcost + 1 + get_manhattan_heuristic(frontier[index][1], food_position, maze_size):
                             frontier.pop(frontier[index])
-                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size), node[0]))
+                            if node[1] == 2:
+                                frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + 20, node[0]))
+                            else:
+                                frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + node[0], node[0]))
                             frontier.sort()
                             parent_list[node[0]] = node_value
-    return "", "", ""
+    return "", "", "", 0
