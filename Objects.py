@@ -1,4 +1,5 @@
 from PIL import ImageTk, Image, ImageOps
+from Searching_Algorithm import *
 import time, random
 unit = 25
 # Pacman object
@@ -124,8 +125,69 @@ class monster(object):
             random_move = self.index
 
         # return random_move
-
-
+    
+    def ghost_random_move(self, lst, C, n):
+        random_list = []
+        up_distance = -1
+        down_distance = -1
+        left_distance = -1
+        right_distance = -1
+        
+        if lst[self.y - 1][self.x] != 1:
+            up_distance = 0
+            random_list.append(up_distance)
+        if lst[self.y + 1][self.x] != 1:
+            down_distance = 1
+            random_list.append(down_distance)
+        if lst[self.y][self.x - 1] != 1:
+            left_distance = 2
+            random_list.append(left_distance)
+        if lst[self.y][self.x + 1] != 1:
+            right_distance = 3
+            random_list.append(right_distance)
+        
+        random_choose = random.choice(random_list)
+        if random_choose == up_distance:
+            self.move("Up", C, n)
+        elif random_choose == down_distance:
+            self.move("Down", C, n)
+        elif random_choose == left_distance:
+            self.move("Left", C, n)
+        elif random_choose == right_distance:
+            self.move("Right", C, n)
+        
+    def chase_pacman(self, lst, pacman_index, C, n):
+        dist_list = []
+        up_dist = -9999
+        down_dist = -9999
+        left_dist = -9999
+        right_dist = -9999
+        if lst[self.y - 1][self.x] != 1:
+            up_dist = get_manhattan_heuristic(self.index - 1, pacman_index, n)
+            dist_list.append(up_dist)
+            
+        if lst[self.y + 1][self.x] != 1:
+            down_dist = get_manhattan_heuristic(self.index + 1, pacman_index, n)
+            dist_list.append(down_dist)
+            
+        if lst[self.y][self.x - 1] != 1:
+            left_dist = get_manhattan_heuristic(self.index - n, pacman_index, n)
+            dist_list.append(left_dist)
+            
+        if lst[self.y][self.x + 1] != 1:
+            right_dist = get_manhattan_heuristic(self.index + n, pacman_index, n)
+            dist_list.append(right_dist)
+        
+        min_dist = min(dist_list)
+        if min_dist == up_dist:
+            self.move("Up", C, n)
+        elif min_dist == down_dist:
+            self.move("Down", C, n)
+        elif min_dist == left_dist:
+            self.move("Left", C, n)
+        elif min_dist == right_dist:
+            self.move("Right", C, n)
+        
 # Food object
 class food(object):
     def __init__(self, x, y, n):
