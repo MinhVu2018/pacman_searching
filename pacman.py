@@ -40,17 +40,19 @@ def random_Maze():
 
 def handle_input():
     global lst
-    # UserInput = "map3.txt"  #input("Enter input file: ")
-    # f = open(UserInput, "r")
+    #UserInput = "map1.txt"  #input("Enter input file: ")
+    #f = open(UserInput, "r")
 
-    # for v in f.readlines():
-    #     v = v.strip().split(' ')
-    #     v = [int(i) for i in v]
+    #for v in f.readlines():
+       #v = v.strip().split(' ')
+       #v = [int(i) for i in v]
         
-    #     lst.append(v)
+       #lst.append(v)
     lst = random_Maze()
 
 def create_maze(C):
+    global label_id
+    label_id = None
     for i in range(n):
         for j in range(m):
             if lst[i][j] == 1: # wall
@@ -64,7 +66,7 @@ def create_maze(C):
                 if lv != 1:
                     g = monster("redghost (1).png", j, i, n, lv)
                     ListGhost.append(g)
-
+    
     for g in ListGhost:
         g.display(C)
 
@@ -73,6 +75,16 @@ def create_maze(C):
 
     p.display(C)
 
+
+    label_id = C.create_text(m*unit + 3*unit, n*unit/2 - 2*unit, fill = "#f61818", text = "S", font=('Arial',20,'bold'))
+    label_id = C.create_text(m*unit + 4*unit, n*unit/2 - 2*unit, fill = "#1a98f6", text = "C", font=('Arial',20,'bold'))
+    label_id = C.create_text(m*unit + 5*unit, n*unit/2 - 2*unit, fill = "#e3f00c", text = "O", font=('Arial',20,'bold'))
+    label_id = C.create_text(m*unit + 6*unit, n*unit/2 - 2*unit, fill = "#1ce70a", text = "R", font=('Arial',20,'bold'))
+    label_id = C.create_text(m*unit + 7*unit, n*unit/2 - 2*unit, fill = "#f2ba0e", text = "E", font=('Arial',20,'bold'))
+    label_id = C.create_text(m*unit + 5*unit, n*unit/2 + 2*unit, fill = "white", text = "Press ENTER to play", font=('System', 10, 'bold'))
+    label_id = C.create_text(m*unit + 5*unit, n*unit/2 + 3*unit, fill = "white", text = "Press ESC to return to menu", 
+                  font=('System', 10, 'bold'))
+    
 def create_data(C):
     # Convert maze to (node, prop)
     data = []
@@ -159,6 +171,7 @@ def display_score():
 
 def RunAlgorithm():
     global score
+    score = 0
     while len(ListFood):
         sort_Food()
         path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
@@ -197,6 +210,45 @@ def RunAlgorithm():
         score += 20
         display_score()
 
+    # while len(ListFood):
+    #     sort_Food()
+    #     #while p.index != ListFood[0].index:
+    #     path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+    #     if path == None:
+    #         count_None = 1
+    #         while path == None and count_None < len(ListFood):
+    #             found = 0
+    #             for f in range(1, len(ListFood)):
+    #                 path_to_other_goal = A_Star(ListAdjacency, p.index, ListFood[f].index, n)[2]
+    #                 if path_to_other_goal != None:
+    #                     tmp = copy.deepcopy(ListFood[0])
+    #                     ListFood[0] = copy.deepcopy(ListFood[f])
+    #                     ListFood[f] = copy.deepcopy(tmp)
+    #                     path = path_to_other_goal
+    #                     found = 1
+    #                     break
+    #             if found == 1:
+    #                 break
+    #             count_None += 1
+    #     else:
+    #         while p.index != ListFood[0].index:
+    #             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+    #             p.path_move([path[1]], C, n, top)
+    #             for g in ListGhost:
+    #                 cur_x = g.index // n
+    #                 cur_y = g.index % n
+    #                 lst[cur_y][cur_x] = 0
+    #                 ghost_new_position = g.move_around_initpos(C, n, top)
+    #                 new_x = ghost_new_position // n
+    #                 new_y = ghost_new_position % n
+    #                 lst[new_y][new_x] = 3
+    #                 update_adjacent_list(C)
+            
+    #     ListFood[0].destroy(C)
+    #     del ListFood[0]
+        
+    #     top.update()
+
 def sort_Food():
     ListFood.sort(key = lambda k: abs(k.x-p.x) + abs(k.y - p.y))
 
@@ -216,14 +268,12 @@ def Play():
     global top, C, p
     global unit, n, m
     global lst, ListGhost, ListAdjacency, ListFood
-    global label_id, score
     top = Tk()
     unit = 25
     lst = []
     ListGhost = []
     ListAdjacency = []
     ListFood = []
-    score = 0
 
     handle_input()
     # maze_size
@@ -233,14 +283,6 @@ def Play():
 
     top.title("Pacman")
     C = Canvas(top, height = n*unit, width = m*unit + 10*unit, background = 'black')
-    C.create_text(m*unit + 3*unit, n*unit/2 - 2*unit, fill = "#f61818", text = "S", font=('Arial',20,'bold'))
-    C.create_text(m*unit + 4*unit, n*unit/2 - 2*unit, fill = "#1a98f6", text = "C", font=('Arial',20,'bold'))
-    C.create_text(m*unit + 5*unit, n*unit/2 - 2*unit, fill = "#e3f00c", text = "O", font=('Arial',20,'bold'))
-    C.create_text(m*unit + 6*unit, n*unit/2 - 2*unit, fill = "#1ce70a", text = "R", font=('Arial',20,'bold'))
-    C.create_text(m*unit + 7*unit, n*unit/2 - 2*unit, fill = "#f2ba0e", text = "E", font=('Arial',20,'bold'))
-    C.create_text(m*unit + 5*unit, n*unit/2 + 2*unit, fill = "white", text = "Press ENTER to play", font=('System', 10, 'bold'))
-    C.create_text(m*unit + 5*unit, n*unit/2 + 3*unit, fill = "white", text = "Press ESC to return to menu", font=('System', 10, 'bold'))
-    label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), font=('Arial',20,'bold'))
     C.pack()
 
     # pacman position
