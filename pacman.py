@@ -152,10 +152,13 @@ def update_adjacent_list(C):
 
             ListAdjacency.append(temp)
 
+def display_score():
+    global label_id
+    C.delete(label_id)
+    label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), font=('Arial',20,'bold'))
+
 def RunAlgorithm():
-    score = 0
-    label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
-                                     font=('Arial',20,'bold'))
+    global score
     while len(ListFood):
         sort_Food()
         path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
@@ -171,15 +174,11 @@ def RunAlgorithm():
             path.remove(path[0])
             p.path_move(path[0], C, n)
             score -= 1
-            C.delete(label_id)
-            label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
-                                     font=('Arial',20,'bold'))
+            display_score()
             for food_index in range(len(ListFood)):
                 if ListFood[food_index].index == path[0]:
                     score += 20
-                    C.delete(label_id)
-                    label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
-                                     font=('Arial',20,'bold'))
+                    display_score()
                     ListFood[food_index].destroy(C)
                     del ListFood[food_index]
                     break
@@ -196,47 +195,7 @@ def RunAlgorithm():
             time.sleep(0.2)
             top.update()
         score += 20
-        C.delete(label_id)
-        label_id = label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), 
-                                     font=('Arial',20,'bold'))
-    # while len(ListFood):
-    #     sort_Food()
-    #     #while p.index != ListFood[0].index:
-    #     path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-    #     if path == None:
-    #         count_None = 1
-    #         while path == None and count_None < len(ListFood):
-    #             found = 0
-    #             for f in range(1, len(ListFood)):
-    #                 path_to_other_goal = A_Star(ListAdjacency, p.index, ListFood[f].index, n)[2]
-    #                 if path_to_other_goal != None:
-    #                     tmp = copy.deepcopy(ListFood[0])
-    #                     ListFood[0] = copy.deepcopy(ListFood[f])
-    #                     ListFood[f] = copy.deepcopy(tmp)
-    #                     path = path_to_other_goal
-    #                     found = 1
-    #                     break
-    #             if found == 1:
-    #                 break
-    #             count_None += 1
-    #     else:
-    #         while p.index != ListFood[0].index:
-    #             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-    #             p.path_move([path[1]], C, n, top)
-    #             for g in ListGhost:
-    #                 cur_x = g.index // n
-    #                 cur_y = g.index % n
-    #                 lst[cur_y][cur_x] = 0
-    #                 ghost_new_position = g.move_around_initpos(C, n, top)
-    #                 new_x = ghost_new_position // n
-    #                 new_y = ghost_new_position % n
-    #                 lst[new_y][new_x] = 3
-    #                 update_adjacent_list(C)
-            
-    #     ListFood[0].destroy(C)
-    #     del ListFood[0]
-        
-    #     top.update()
+        display_score()
 
 def sort_Food():
     ListFood.sort(key = lambda k: abs(k.x-p.x) + abs(k.y - p.y))
@@ -257,12 +216,14 @@ def Play():
     global top, C, p
     global unit, n, m
     global lst, ListGhost, ListAdjacency, ListFood
+    global label_id, score
     top = Tk()
     unit = 25
     lst = []
     ListGhost = []
     ListAdjacency = []
     ListFood = []
+    score = 0
 
     handle_input()
     # maze_size
@@ -278,8 +239,8 @@ def Play():
     C.create_text(m*unit + 6*unit, n*unit/2 - 2*unit, fill = "#1ce70a", text = "R", font=('Arial',20,'bold'))
     C.create_text(m*unit + 7*unit, n*unit/2 - 2*unit, fill = "#f2ba0e", text = "E", font=('Arial',20,'bold'))
     C.create_text(m*unit + 5*unit, n*unit/2 + 2*unit, fill = "white", text = "Press ENTER to play", font=('System', 10, 'bold'))
-    C.create_text(m*unit + 5*unit, n*unit/2 + 3*unit, fill = "white", text = "Press ESC to return to menu", 
-                  font=('System', 10, 'bold'))
+    C.create_text(m*unit + 5*unit, n*unit/2 + 3*unit, fill = "white", text = "Press ESC to return to menu", font=('System', 10, 'bold'))
+    label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), font=('Arial',20,'bold'))
     C.pack()
 
     # pacman position
