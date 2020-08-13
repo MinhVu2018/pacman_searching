@@ -6,6 +6,7 @@ from Searching_Algorithm import *
 from Objects import *
 
 # global lst, ListGhost, ListAdjacency, ListFood
+
 def random_Maze():
     n = np.random.randint(5, 30)
     m = np.random.randint(5, 30)
@@ -39,14 +40,14 @@ def random_Maze():
 
 def handle_input():
     global lst
-    #UserInput = "map1.txt"  #input("Enter input file: ")
-    #f = open(UserInput, "r")
+    # UserInput = "map1.txt"  #input("Enter input file: ")
+    # f = open(UserInput, "r")
 
-    #for v in f.readlines():
-       #v = v.strip().split(' ')
-       #v = [int(i) for i in v]
+    # for v in f.readlines():
+    #     v = v.strip().split(' ')
+    #     v = [int(i) for i in v]
         
-       #lst.append(v)
+    #     lst.append(v)
     lst = random_Maze()
 
 def create_maze(C):
@@ -61,9 +62,10 @@ def create_maze(C):
                 ListFood.append(f)
             elif lst[i][j] == 3: #monster
                 if lv != 1:
-                    g = monster("redghost (1).png", j, i, n, lv)
+                    t = random.randint(1,3) # 3 types
+                    g = monster("redghost (1).png", j, i, n, t)
                     ListGhost.append(g)
-    
+
     for g in ListGhost:
         g.display(C)
 
@@ -71,7 +73,7 @@ def create_maze(C):
         f.display(C)
 
     p.display(C)
-    
+
 def create_data(C):
     # Convert maze to (node, prop)
     data = []
@@ -150,37 +152,42 @@ def update_adjacent_list(C):
                 temp.append(data[i+n])
 
             ListAdjacency.append(temp)
-            
+
 def display_score():
     global label_id
     C.delete(label_id)
     label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), font=('Arial',20,'bold'))
 
-def RunAlgorithm():
+def sort_Food():
+    ListFood.sort(key = lambda k: np.sqrt((k.x - p.x)**2 + (k.y - p.y)**2))
+
+def nearest_food_tactic():
     global score
-    score = 0
-    count_h = 0
-    count_rd = 0
-    #count_swap = 0
     while len(ListFood):
         sort_Food()
         path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
         
-        if len(path) == 0 :
-            display_score()
-            # ListFood[0].destroy(C)
+        if len(path)==0 :
             ListFood.remove(ListFood[0])
             if len(ListFood) == 0:
                 break
             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
 
         while len(path):
+            if lv == 3:
+                for g in ListGhost:
+                    g.move_around_initpos(C, n)
+
+                    if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+                        p.runnnn(C, n, ListAdjacency, g)
+                        swap(ListFood[0], ListFood[-1])            
             path.remove(path[0])
             p.path_move(path[0], C, n)
             score -= 1
             display_score()
+            
             for food_index in range(len(ListFood)):
-                if ListFood[food_index].index == path[0]:
+                if ListFood[food_index].index == p.index:
                     score += 20
                     display_score()
                     ListFood[food_index].destroy(C)
@@ -191,27 +198,21 @@ def RunAlgorithm():
             if len(ListFood) == 0:
                 break
             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-            #move_ghost lv 3 4
-            if lv > 2:
-                if count_h < 3:
-                    for g in ListGhost:
-                        g.chase_pacman(lst, p.index, C, n)
-                    count_h += 1
-                    
-                elif count_h == 3 and count_rd < 5:
-                    for g in ListGhost:
-                        g.ghost_random_move(lst, C, n)
-                    count_rd += 1
-                
-                elif count_h == 3 and count_rd == 5:
-                    count_h = 0
-                    count_rd = 0
-                            
-            time.sleep(0.2)
-            top.update()
 
-def sort_Food():
-    ListFood.sort(key = lambda k: abs(k.x-p.x) + abs(k.y - p.y))
+            time.sleep(0.05)
+            top.update()
+        score += 20
+        display_score()
+
+def highest_cost_tactic():
+    print("max A*")
+
+def blind_check_tactic():
+    print("DFS check all map")
+
+def RunAlgorithm():
+    nearest_food_tactic()
+    
 
 def key_pressed(event):
     global p
@@ -229,13 +230,14 @@ def Play():
     global top, C, p
     global unit, n, m
     global lst, ListGhost, ListAdjacency, ListFood
-    global label_id
+    global label_id, score
     top = Tk()
     unit = 25
     lst = []
     ListGhost = []
     ListAdjacency = []
     ListFood = []
+    score = 0
 
     handle_input()
     # maze_size
@@ -252,7 +254,7 @@ def Play():
     C.create_text(m*unit + 7*unit, n*unit/2 - 2*unit, fill = "#f2ba0e", text = "E", font=('Arial',20,'bold'))
     C.create_text(m*unit + 5*unit, n*unit/2 + 2*unit, fill = "white", text = "Press ENTER to play", font=('System', 10, 'bold'))
     C.create_text(m*unit + 5*unit, n*unit/2 + 3*unit, fill = "white", text = "Press ESC to return to menu", font=('System', 10, 'bold'))
-    label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = "0", font=('Arial',20,'bold'))
+    label_id = C.create_text(m*unit + 5*unit, n*unit/2, fill = "#f2ba0e", text = str(score), font=('Arial',20,'bold'))
     C.pack()
 
     # pacman position

@@ -155,7 +155,6 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
             p_found.append(node_value)
             p_found.reverse()            
             time_to_escape = len(explored_nodes)
-            
             return time_to_escape, explored_nodes, p_found, node_fcost
         
         else:
@@ -183,3 +182,8 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                             frontier.sort()
                             parent_list[node[0]] = node_value
     return "", "", "", 0
+
+def swap (a, b):
+    temp = a
+    a = b
+    b = temp
