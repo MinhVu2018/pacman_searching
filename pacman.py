@@ -40,15 +40,15 @@ def random_Maze():
 
 def handle_input():
     global lst
-    # UserInput = "map1.txt"  #input("Enter input file: ")
-    # f = open(UserInput, "r")
+    UserInput = "BigMap.txt"  #input("Enter input file: ")
+    f = open(UserInput, "r")
 
-    # for v in f.readlines():
-    #     v = v.strip().split(' ')
-    #     v = [int(i) for i in v]
+    for v in f.readlines():
+        v = v.strip().split(' ')
+        v = [int(i) for i in v]
         
-    #     lst.append(v)
-    lst = random_Maze()
+        lst.append(v)
+    # lst = random_Maze()
 
 def create_maze(C):
     for i in range(n):
