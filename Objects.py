@@ -96,7 +96,8 @@ class monster(object):
         # type 3: 10 up -> 10 right -> 10 down -> 10 left
 
         self.status = 0 
-        self.count = 0
+        self.count1 = 0
+        self.count2 = 0
         self.x = x
         self.y = y
         self.index = x*n + y
@@ -144,7 +145,38 @@ class monster(object):
             random_move = self.index
 
         # return random_move
-
+    
+    def ghost_random_move(self, lst, C, n):
+        random_list = []
+        up_distance = -1
+        down_distance = -1
+        left_distance = -1
+        right_distance = -1
+        
+        if lst[self.y - 1][self.x] != 1:
+            up_distance = 0
+            random_list.append(up_distance)
+        if lst[self.y + 1][self.x] != 1:
+            down_distance = 1
+            random_list.append(down_distance)
+        if lst[self.y][self.x - 1] != 1:
+            left_distance = 2
+            random_list.append(left_distance)
+        if lst[self.y][self.x + 1] != 1:
+            right_distance = 3
+            random_list.append(right_distance)
+        
+        random_choose = random.choice(random_list)
+        if random_choose == up_distance:
+            self.move("Up", C, n)
+        elif random_choose == down_distance:
+            self.move("Down", C, n)
+        elif random_choose == left_distance:
+            self.move("Left", C, n)
+        elif random_choose == right_distance:
+            self.move("Right", C, n)
+        
+    
     def chase_pacman(self, lst, pacman, C, n):
         dist_list = []
         up_dist = -9999
@@ -177,7 +209,61 @@ class monster(object):
         elif min_dist == right_dist:
             self.move("Right", C, n)
 
-
+    def chase(self, lst, pacman, C, n):
+        if self.type == 0:  #type 0
+            if self.count1 < 3:
+                self.chase_pacman(lst, pacman.index, C, n)
+                self.count1 += 1
+            
+            elif self.count1 == 3 and self.count2 < 5:
+                self.ghost_random_move(lst, C, n)
+                self.count2 += 1
+            
+            elif self.count1 == 3 and self.count2 == 5:
+                self.count1 = 0
+                self.count2 = 0
+                
+        elif self.type == 1:    #type 1
+            h = get_manhattan_heuristic(self.index, pacman.index, n)
+            if h > 5:
+                self.chase_pacman(lst, pacman.index, C, n)
+            elif h <= 5:
+                self.ghost_random_move(lst, C, n)
+        
+        elif self.type == 2:    #type 2
+            if self.count1 < 3:
+                self.chase_pacman(lst, pacman.predict_move(pacman, ListAdjacency), C, n)
+                self.count1 += 1
+            
+            elif self.count1 == 3 and self.count2 < 5:
+                self.ghost_random_move(lst, C, n)
+                self.count2 += 1
+            
+            elif self.count1 == 3 and self.count2 == 5:
+                self.count1 = 0
+                self.count2 = 0
+        
+        elif self.type == 3:    #type 3
+            if self.count1 < 10:
+                if lst[self.y - 1][self.x] != 1:
+                    self.move("Up", C, n)
+                    count1 += 1
+                    
+            elif self.count1 < 20 and self.count1 >= 10:
+                if lst[self.y][self.x + n] != 1:
+                    self.move("Right", C, n)
+                    count1 += 1
+                    
+            elif self.count1 < 30 and self.count1 >= 20:
+                if lst[self.y + 1][self.x] != 1:
+                    self.move("Down", C, n)
+                    count1 += 1
+            
+            elif self.count1 < 40 and self.count1 >= 30:
+                if lst[self.y][self.x - n] != 1:
+                    self.move("Left", C, n)
+            
+            
 # Food object
 class food(object):
     def __init__(self, x, y, n):
