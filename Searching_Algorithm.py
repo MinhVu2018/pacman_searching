@@ -181,7 +181,78 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                                 frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + node[0], node[0]))
                             frontier.sort()
                             parent_list[node[0]] = node_value
-    return "", "", "", 0
+    return "", "", [], 0
+
+def updateFrontier(front, tpl):
+    for i in range(len(front)):
+        if front[i][1] == tpl[1] and tpl[0] <= front[i][0]:
+            front[i] = tpl
+            return
+    front.append(tpl)
+
+def reverse_A_Star(adjacency_list, current_position, food_position, maze_size, ghost_list, food_list):
+
+    flag = [False for _ in adjacency_list]
+    visitedParent = [(i, i) for i in range(len(adjacency_list))]
+    path = []
+    frontier = []
+    visitedList = []
+    frontier.append((get_manhattan_heuristic(current_position, food_position, maze_size), current_position))
+
+    visitedParent[current_position] = (current_position, -1)
+
+    flag[current_position] = True
+
+    while frontier[0][1] != food_position:
+        node = frontier.pop(0)  
+        # node = (cost, index)
+
+        visitedList.append(node[1])
+        flag[node[1]] = True
+
+        for x in adjacency_list[node[1]]:
+            # x = (index, type)
+            fl = False
+            for g in ghost_list:
+                if g.index == x[0]:
+                    fl = True
+                    break 
+
+            if not flag[x[0]] and not fl:
+
+                fl = False
+                for food in food_list:
+                    if x[0] == food.index:
+                        fl = True
+                        break
+
+                if fl: # food
+                    updateFrontier(frontier, (20 + node[0], x[0]))
+                else:
+                    updateFrontier(frontier, (node[0] - 1, x[0]))
+                visitedParent[x[0]] = (x[0], node[1])
+
+        frontier.sort(key = lambda alpha:alpha[0], reverse = True)
+
+        if len(frontier) == 0:
+            return 0,[],[],0
+
+    # pop goal node
+    goal = frontier[0][1]
+    visitedList.append(frontier[0][1])
+    node = frontier.pop(0)
+
+    fcost = node[0]
+
+    while visitedParent[goal][1] != -1:
+        path = [goal] + path
+        goal = visitedParent[goal][1]
+
+    #begin node
+    path = [goal] + path
+
+    return len(visitedList), visitedList, path, fcost
+
 
 def swap (a, b):
     temp = a

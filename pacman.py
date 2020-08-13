@@ -163,10 +163,9 @@ def sort_Food():
 
 def nearest_food_tactic():
     global score
-    while len(ListFood):
+    while len(ListFood) > 0:
         sort_Food()
         path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-        
         if len(path)==0 :
             ListFood.remove(ListFood[0])
             if len(ListFood) == 0:
@@ -174,13 +173,15 @@ def nearest_food_tactic():
             path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
 
         while len(path):
+
             if lv == 3:
                 for g in ListGhost:
                     g.move_around_initpos(C, n)
 
                     if get_manhattan_heuristic(p.index, g.index, n) <= 2:
                         p.runnnn(C, n, ListAdjacency, g)
-                        swap(ListFood[0], ListFood[-1])            
+                        swap(ListFood[0], ListFood[-1])
+                        break            
             path.remove(path[0])
             p.path_move(path[0], C, n)
             score -= 1
@@ -205,14 +206,66 @@ def nearest_food_tactic():
         display_score()
 
 def highest_cost_tactic():
-    print("max A*")
+    global score
+    while len(ListFood):
+        ListCost = []
+        ListPath = []
+        for f in ListFood:
+            algo = reverse_A_Star(ListAdjacency, p.index, f.index, n, ListGhost, ListFood)
+            ListCost.append(algo[3])
+            ListPath.append(algo[2])
+
+        while ListPath[0] == []:
+            del ListPath[0]
+            del ListCost[0]
+            if len(ListPath) == 0:
+                return
+
+        index_max = np.argmax(ListCost)
+
+        if ListFood[index_max] == 0:    # all is 0
+            return
+
+        path = ListPath[index_max]
+        flag = False
+        while len(path) > 0:
+            if lv == 3:
+                for g in ListGhost:
+                    g.move_around_initpos(C, n)
+
+                    if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+                        p.runnnn(C, n, ListAdjacency, g)
+                        flag = True
+                        break    
+
+            if flag:
+                break
+            p.path_move(path[0], C, n)
+            path.remove(path[0])
+            score -= 1
+            display_score()
+            
+            for food_index in range(len(ListFood)):
+                if ListFood[food_index].index == p.index:
+                    score += 20
+                    display_score()
+                    ListFood[food_index].destroy(C)
+                    del ListFood[food_index]
+                    break
+
+            time.sleep(0.05)
+            top.update()
+
+        score += 20
+        display_score()
 
 def blind_check_tactic():
     print("DFS check all map")
 
 def RunAlgorithm():
-    nearest_food_tactic()
-    
+    # nearest_food_tactic()
+    highest_cost_tactic()
+    print("end")
 
 def key_pressed(event):
     global p

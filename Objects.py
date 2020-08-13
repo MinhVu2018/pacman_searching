@@ -58,7 +58,6 @@ class pacman(object):
             self.key_move("Down", C, n)
 
     def runnnn(self, C, n, ListAdjacency, ghost):
-        
         while True:
             i = random.randint(0, len(ListAdjacency[self.index]) - 1)
             tile = ListAdjacency[self.index][i][0]
