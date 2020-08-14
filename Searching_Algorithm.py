@@ -253,7 +253,6 @@ def reverse_A_Star(adjacency_list, current_position, food_position, maze_size, g
 
     return len(visitedList), visitedList, path, fcost
 
-
 def swap (a, b):
     temp = a
     a = b

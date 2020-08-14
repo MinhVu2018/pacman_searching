@@ -62,7 +62,7 @@ def create_maze(C):
                 ListFood.append(f)
             elif lst[i][j] == 3: #monster
                 if lv != 1:
-                    t = random.randint(1,3) # 3 types
+                    t = random.randint(0,3) # 4 types
                     g = monster("redghost (1).png", j, i, n, t)
                     ListGhost.append(g)
 
@@ -90,8 +90,8 @@ def create_data(C):
         if data[i][1] == 1: # wall
             ListAdjacency.append(None)
 
-        elif data[i][1] == 3 : # monster
-            ListAdjacency.append(None)
+        # elif data[i][1] == 3 : # monster
+        #     ListAdjacency.append(None)
 
         else:   # road or food
             temp = []
@@ -129,7 +129,44 @@ def display_score():
 def sort_Food():
     ListFood.sort(key = lambda k: np.sqrt((k.x - p.x)**2 + (k.y - p.y)**2))
 
-def nearest_food_tactic():
+def nearest_food_tactic1():
+	global score
+	while len(ListFood) > 0:
+		sort_Food()
+        
+		path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+        
+		if len(path) == 0: # cannot found 
+			ListFood.remove(ListFood[0])          
+		else:
+			if lv == 3:
+				for g in ListGhost:
+					g.ghost_random_move(lst, C, n)
+					if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+						p.runnnn(C, n, ListAdjacency, g)
+						break
+
+			if lv == 4:
+				for g in ListGhost:
+					g.chase(lst, p.index, ListAdjacency,  C, n)
+					if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+						p.runnnn(C, n, ListAdjacency, g)
+						break
+
+			p.path_move(path[1], C, n)
+			score -= 1
+			display_score()
+			for food_index in range(len(ListFood)):
+				if ListFood[food_index].index == p.index:
+					score += 20
+					display_score()
+					ListFood[food_index].destroy(C)
+					del ListFood[food_index]
+					break
+			time.sleep(0.05)
+			top.update()
+
+def nearest_food_tactic2():
     global score
     while len(ListFood) > 0:
         sort_Food()
@@ -258,7 +295,7 @@ def blind_check_tactic():
     print("DFS check all map")
 
 def RunAlgorithm():
-    nearest_food_tactic()
+    nearest_food_tactic1()
     #highest_cost_tactic()
     C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
 
