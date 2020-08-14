@@ -58,12 +58,17 @@ class pacman(object):
             self.key_move("Down", C, n)
 
     def runnnn(self, C, n, ListAdjacency, ghost):
-        while True:
-            i = random.randint(0, len(ListAdjacency[self.index]) - 1)
+        ListEvade = []
+        for i in range(len(ListAdjacency[self.index])):
             tile = ListAdjacency[self.index][i][0]
             if get_manhattan_heuristic(tile, ghost.index, n) >= 2:
-                self.path_move(tile, C, n)
-                return
+                ListEvade.append(tile)
+        
+        if len(ListEvade) != 0:
+            random_evade = ListEvade[random.randint(0, len(ListEvade) - 1)]
+            self.path_move(random_evade, C, n)
+        else:
+            return
 
     def predict_move(self, ListAdjacency):
         i = random.randint(0, len(ListAdjacency[self.index]) - 1)
@@ -175,28 +180,28 @@ class monster(object):
             self.move("Left", C, n)
         elif random_choose == right_distance:
             self.move("Right", C, n)
-        
+        return 
     
-    def chase_pacman(self, lst, pacman, C, n):
+    def chase_pacman(self, lst, pacman_index, C, n):
         dist_list = []
         up_dist = -9999
         down_dist = -9999
         left_dist = -9999
         right_dist = -9999
         if lst[self.y - 1][self.x] != 1:    
-            up_dist = get_manhattan_heuristic(self.index - 1, pacman.index, n)
+            up_dist = get_manhattan_heuristic(self.index - 1, pacman_index, n)
             dist_list.append(up_dist)
             
         if lst[self.y + 1][self.x] != 1:
-            down_dist = get_manhattan_heuristic(self.index + 1, pacman.index, n)
+            down_dist = get_manhattan_heuristic(self.index + 1, pacman_index, n)
             dist_list.append(down_dist)
             
         if lst[self.y][self.x - 1] != 1:
-            left_dist = get_manhattan_heuristic(self.index - n, pacman.index, n)
+            left_dist = get_manhattan_heuristic(self.index - n, pacman_index, n)
             dist_list.append(left_dist)
             
         if lst[self.y][self.x + 1] != 1:
-            right_dist = get_manhattan_heuristic(self.index + n, pacman.index, n)
+            right_dist = get_manhattan_heuristic(self.index + n, pacman_index, n)
             dist_list.append(right_dist)
         
         min_dist = min(dist_list)
@@ -209,10 +214,10 @@ class monster(object):
         elif min_dist == right_dist:
             self.move("Right", C, n)
 
-    def chase(self, lst, pacman, C, n):
+    def chase(self, lst, pacman_index, ListAdjacency,  C, n):
         if self.type == 0:  #type 0
             if self.count1 < 3:
-                self.chase_pacman(lst, pacman.index, C, n)
+                self.chase_pacman(lst, pacman_index, C, n)
                 self.count1 += 1
             
             elif self.count1 == 3 and self.count2 < 5:
@@ -224,15 +229,15 @@ class monster(object):
                 self.count2 = 0
                 
         elif self.type == 1:    #type 1
-            h = get_manhattan_heuristic(self.index, pacman.index, n)
+            h = get_manhattan_heuristic(self.index, pacman_index, n)
             if h > 5:
-                self.chase_pacman(lst, pacman.index, C, n)
+                self.chase_pacman(lst, pacman_index, C, n)
             elif h <= 5:
                 self.ghost_random_move(lst, C, n)
         
         elif self.type == 2:    #type 2
             if self.count1 < 3:
-                self.chase_pacman(lst, pacman.predict_move(pacman, lst), C, n)
+                self.chase_pacman(lst, pacman.predict_move(ListAdjacency), C, n)
                 self.count1 += 1
             
             elif self.count1 == 3 and self.count2 < 5:
@@ -262,6 +267,9 @@ class monster(object):
             elif self.count1 < 40 and self.count1 >= 30:
                 if lst[self.y][self.x - n] != 1:
                     self.move("Left", C, n)
+                    
+            if self.count1 == 40:
+                self.count1 = 0
             
             
 # Food object
@@ -282,4 +290,4 @@ class food(object):
         C.delete(self.img)
 
     def uneatable(self, C):
-        C.create_line(self.x*unit, self.y*unit, (self.x+1)*unit, (self.y+1)*unit, fill = "red")
+        C.create_line(self.x*unit, y*unit, (self.x+1)*unit, (self.y+1)*unit, fill = "red")
