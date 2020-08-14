@@ -236,41 +236,41 @@ class monster(object):
             elif h <= 5:
                 self.ghost_random_move(lst, C, n)
         
-        elif self.type == 2:    #type 2
-            if self.count1 < 3:
-                self.chase_pacman(lst, pacman.predict_move(ListAdjacency), C, n)
-                self.count1 += 1
+        # elif self.type == 2:    #type 2
+        #     if self.count1 < 3:
+        #         self.chase_pacman(lst, pacman.predict_move(ListAdjacency), C, n)
+        #         self.count1 += 1
             
-            elif self.count1 == 3 and self.count2 < 5:
-                self.ghost_random_move(lst, C, n)
-                self.count2 += 1
+        #     elif self.count1 == 3 and self.count2 < 5:
+        #         self.ghost_random_move(lst, C, n)
+        #         self.count2 += 1
             
-            elif self.count1 == 3 and self.count2 == 5:
-                self.count1 = 0
-                self.count2 = 0
+        #     elif self.count1 == 3 and self.count2 == 5:
+        #         self.count1 = 0
+        #         self.count2 = 0
         
-        elif self.type == 3:    #type 3
-            if self.count1 < 10:
-                if lst[self.y - 1][self.x] != 1:
-                    self.move("Up", C, n)
-                    self.count1 += 1
+        # elif self.type == 3:    #type 3
+        #     if self.count1 < 10:
+        #         if lst[self.y - 1][self.x] != 1:
+        #             self.move("Up", C, n)
+        #             self.count1 += 1
                     
-            elif self.count1 < 20 and self.count1 >= 10:
-                if lst[self.y][self.x + n] != 1:
-                    self.move("Right", C, n)
-                    self.count1 += 1
+        #     elif self.count1 < 20 and self.count1 >= 10:
+        #         if lst[self.y][self.x + n] != 1:
+        #             self.move("Right", C, n)
+        #             self.count1 += 1
                     
-            elif self.count1 < 30 and self.count1 >= 20:
-                if lst[self.y + 1][self.x] != 1:
-                    self.move("Down", C, n)
-                    self.count1 += 1
+        #     elif self.count1 < 30 and self.count1 >= 20:
+        #         if lst[self.y + 1][self.x] != 1:
+        #             self.move("Down", C, n)
+        #             self.count1 += 1
             
-            elif self.count1 < 40 and self.count1 >= 30:
-                if lst[self.y][self.x - n] != 1:
-                    self.move("Left", C, n)
+        #     elif self.count1 < 40 and self.count1 >= 30:
+        #         if lst[self.y][self.x - n] != 1:
+        #             self.move("Left", C, n)
                     
-            if self.count1 == 40:
-                self.count1 = 0
+        #     if self.count1 == 40:
+        #         self.count1 = 0
             
             
 # Food object

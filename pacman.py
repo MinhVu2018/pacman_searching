@@ -62,7 +62,7 @@ def create_maze(C):
                 ListFood.append(f)
             elif lst[i][j] == 3: #monster
                 if lv != 1:
-                    t = random.randint(0,3) # 4 types
+                    t = random.randint(0,1) # 2 types
                     g = monster("redghost (1).png", j, i, n, t)
                     ListGhost.append(g)
 
@@ -136,8 +136,9 @@ def nearest_food_tactic1():
         
 		path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
         
-		if len(path) == 0: # cannot found 
+		if len(path) == 0 or len(path) > 20: # cannot found 
 			ListFood.remove(ListFood[0])          
+
 		else:
 			if lv == 3:
 				for g in ListGhost:
