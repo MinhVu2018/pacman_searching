@@ -40,15 +40,15 @@ def random_Maze():
 
 def handle_input():
     global lst
-    UserInput = "BigMap.txt"  #input("Enter input file: ")
-    f = open(UserInput, "r")
+    #UserInput = "map1.txt"  #input("Enter input file: ")
+    #f = open(UserInput, "r")
 
-    for v in f.readlines():
-        v = v.strip().split(' ')
-        v = [int(i) for i in v]
+    #for v in f.readlines():
+    #    v = v.strip().split(' ')
+    #    v = [int(i) for i in v]
         
-        lst.append(v)
-    # lst = random_Maze()
+    #    lst.append(v)
+    lst = random_Maze()
 
 def create_maze(C):
     for i in range(n):
@@ -117,41 +117,9 @@ def create_data(C):
                 if lst[y][x] != 1:  # not wall
                     MoveableFromInitLocation.append(i)
                     
+        MoveableFromInitLocation.append(g.index)
+                    
         g.MoveList = MoveableFromInitLocation.copy()
-        
-def update_adjacent_list(C):
-    ListAdjacency = []
-    # Convert maze to (node, prop)
-    data = []
-
-    for number in range(n*m):
-        x = number // n
-        y = number % n
-        if lv == 1 and lst[y][x] == 3: # monster at lv1
-            data.append( (number, 0) )
-        else:
-            data.append( (number, lst[y][x]) )
-
-    for i in range(n*m):
-        
-        if data[i][1] == 1: # wall
-            ListAdjacency.append(None)
-
-        elif data[i][1] == 3 : # monster
-            ListAdjacency.append(None)
-
-        else:   # road or food
-            temp = []
-            if  ( data[i-n][1] == 0 or data[i-n][1] == 2 ):
-                temp.append(data[i-n])
-            if ( data[i-1][1] == 0 or data[i-1][1] == 2 ):
-                temp.append(data[i-1])
-            if ( data[i+1][1] == 0 or data[i+1][1] == 2 ):
-                temp.append(data[i+1])
-            if ( data[i+n][1] == 0 or data[i+n][1] == 2 ):
-                temp.append(data[i+n])
-
-            ListAdjacency.append(temp)
 
 def display_score():
     global label_id
@@ -165,14 +133,35 @@ def nearest_food_tactic():
     global score
     while len(ListFood) > 0:
         sort_Food()
-        path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-        if len(path)==0 :
-            ListFood.remove(ListFood[0])
-            if len(ListFood) == 0:
+        ListFood_currentState = ListFood
+        
+        path = A_Star(ListAdjacency, p.index, ListFood_currentState[0].index, n)[2]
+        
+        while len(path) == 0:
+            ListFood_currentState.remove(ListFood_currentState[0])
+            if len(ListFood_currentState) == 0:
                 break
-            path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-
-        while len(path):
+            path = A_Star(ListAdjacency, p.index, ListFood_currentState[0].index, n)[2]
+        
+        if len(ListFood_currentState) >= 4:
+            min_index = 0
+            for i in range(1, 4):
+                pth = A_Star(ListAdjacency, p.index, ListFood_currentState[i].index, n)[2]
+                if len(pth) != 0 and len(pth) < len(path):
+                    path = pth
+                    min_index = i
+                    
+            if min_index != 0:
+                swap(ListFood_currentState[0], ListFood_currentState[min_index])
+                    
+        #if len(path) == 0:
+         #   ListFood.remove(ListFood[0])
+          #  if len(ListFood) == 0:
+           #     break
+           # path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+        
+        flag = False
+        while len(path) > 0:
 
             if lv == 3:
                 for g in ListGhost:
@@ -180,10 +169,21 @@ def nearest_food_tactic():
 
                     if get_manhattan_heuristic(p.index, g.index, n) <= 2:
                         p.runnnn(C, n, ListAdjacency, g)
-                        swap(ListFood[0], ListFood[-1])
-                        break            
-            path.remove(path[0])
+                        for food_index in range(len(ListFood)):
+                            if ListFood[food_index].index == p.index:
+                                score += 20
+                                display_score()
+                                ListFood[food_index].destroy(C)
+                                del ListFood[food_index]
+                                break
+                        flag = True
+                        break
+                    
+            if flag == True:
+                break
+            
             p.path_move(path[0], C, n)
+            path.remove(path[0])
             score -= 1
             display_score()
             
@@ -195,15 +195,13 @@ def nearest_food_tactic():
                     del ListFood[food_index]
                     break
 
-            sort_Food()
-            if len(ListFood) == 0:
-                break
-            path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
+            #sort_Food()
+            #if len(ListFood) == 0:
+             #   break
+            #path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
 
             time.sleep(0.05)
             top.update()
-        score += 20
-        display_score()
 
 def highest_cost_tactic():
     global score
@@ -238,7 +236,7 @@ def highest_cost_tactic():
                         flag = True
                         break    
 
-            if flag:
+            if flag == True:
                 break
             p.path_move(path[0], C, n)
             path.remove(path[0])
@@ -256,15 +254,12 @@ def highest_cost_tactic():
             time.sleep(0.05)
             top.update()
 
-        score += 20
-        display_score()
-
 def blind_check_tactic():
     print("DFS check all map")
 
 def RunAlgorithm():
-    # nearest_food_tactic()
-    highest_cost_tactic()
+    nearest_food_tactic()
+    #highest_cost_tactic()
     print("end")
 
 def key_pressed(event):
