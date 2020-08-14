@@ -165,7 +165,7 @@ def nearest_food_tactic():
 
             if lv == 3:
                 for g in ListGhost:
-                    g.move_around_initpos(C, n)
+                    g.ghost_random_move(lst, C, n)
 
                     if get_manhattan_heuristic(p.index, g.index, n) <= 2:
                         p.runnnn(C, n, ListAdjacency, g)
@@ -229,7 +229,7 @@ def highest_cost_tactic():
         while len(path) > 0:
             if lv == 3:
                 for g in ListGhost:
-                    g.move_around_initpos(C, n)
+                    g.ghost_random_move(lst, C, n)
 
                     if get_manhattan_heuristic(p.index, g.index, n) <= 2:
                         p.runnnn(C, n, ListAdjacency, g)
@@ -260,7 +260,7 @@ def blind_check_tactic():
 def RunAlgorithm():
     nearest_food_tactic()
     #highest_cost_tactic()
-    print("end")
+    C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
 
 def key_pressed(event):
     global p
