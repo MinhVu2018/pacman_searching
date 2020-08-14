@@ -232,7 +232,7 @@ class monster(object):
         
         elif self.type == 2:    #type 2
             if self.count1 < 3:
-                self.chase_pacman(lst, pacman.predict_move(pacman, ListAdjacency), C, n)
+                self.chase_pacman(lst, pacman.predict_move(pacman, lst), C, n)
                 self.count1 += 1
             
             elif self.count1 == 3 and self.count2 < 5:
@@ -247,17 +247,17 @@ class monster(object):
             if self.count1 < 10:
                 if lst[self.y - 1][self.x] != 1:
                     self.move("Up", C, n)
-                    count1 += 1
+                    self.count1 += 1
                     
             elif self.count1 < 20 and self.count1 >= 10:
                 if lst[self.y][self.x + n] != 1:
                     self.move("Right", C, n)
-                    count1 += 1
+                    self.count1 += 1
                     
             elif self.count1 < 30 and self.count1 >= 20:
                 if lst[self.y + 1][self.x] != 1:
                     self.move("Down", C, n)
-                    count1 += 1
+                    self.count1 += 1
             
             elif self.count1 < 40 and self.count1 >= 30:
                 if lst[self.y][self.x - n] != 1:
@@ -282,4 +282,4 @@ class food(object):
         C.delete(self.img)
 
     def uneatable(self, C):
-        C.create_line(self.x*unit, y*unit, (self.x+1)*unit, (self.y+1)*unit, fill = "red")
+        C.create_line(self.x*unit, self.y*unit, (self.x+1)*unit, (self.y+1)*unit, fill = "red")
