@@ -40,15 +40,15 @@ def random_Maze():
 
 def handle_input():
     global lst
-    #UserInput = "map1.txt"  #input("Enter input file: ")
-    #f = open(UserInput, "r")
+    UserInput = "map1.txt"  #input("Enter input file: ")
+    f = open(UserInput, "r")
 
-    #for v in f.readlines():
-    #    v = v.strip().split(' ')
-    #    v = [int(i) for i in v]
+    for v in f.readlines():
+       v = v.strip().split(' ')
+       v = [int(i) for i in v]
         
-    #    lst.append(v)
-    lst = random_Maze()
+       lst.append(v)
+    # lst = random_Maze()
 
 def create_maze(C):
     for i in range(n):
@@ -76,12 +76,12 @@ def create_maze(C):
 
 def create_data(C):
     # Convert maze to (node, prop)
-    data = []
+    global data
 
     for number in range(n*m):
         x = number // n
         y = number % n
-        if lv == 1 and lst[y][x] == 3: # monster at lv1
+        if lst[y][x] == 3: # monster position
             data.append( (number, 0) )
         else:
             data.append( (number, lst[y][x]) )
@@ -90,22 +90,20 @@ def create_data(C):
         if data[i][1] == 1: # wall
             ListAdjacency.append(None)
 
-        # elif data[i][1] == 3 : # monster
-        #     ListAdjacency.append(None)
-
         else:   # road or food
             temp = []
-            if  ( data[i-n][1] == 0 or data[i-n][1] == 2 ):
+            if  ( data[i-n][1] != 1 ):
                 temp.append(data[i-n])
-            if ( data[i-1][1] == 0 or data[i-1][1] == 2 ):
+            if ( data[i-1][1] != 1 ):
                 temp.append(data[i-1])
-            if ( data[i+1][1] == 0 or data[i+1][1] == 2 ):
+            if ( data[i+1][1] != 1 ):
                 temp.append(data[i+1])
-            if ( data[i+n][1] == 0 or data[i+n][1] == 2 ):
+            if ( data[i+n][1] != 1 ):
                 temp.append(data[i+n])
 
+            temp.sort(key = lambda k:k[0])
             ListAdjacency.append(temp)
-            
+
     for g in ListGhost:
         Adjacent_Pos = [g.index - n, g.index + n, g.index - n - 1, g.index - n + 1, g.index - 1, g.index + 1, g.index + n - 1, g.index + n + 1, g.index]
         MoveableFromInitLocation = []
@@ -293,11 +291,61 @@ def highest_cost_tactic():
             top.update()
 
 def blind_check_tactic():
+    global score
     print("DFS check all map")
 
+    stack = [p.index]
+    flag = False
+    while len(stack):
+        count = 0
+        pre = p.index
+        for i in ListAdjacency[p.index]:
+            if not p.check_tile(i[0]):
+
+                p.visited.append( (i[0],p.index) )
+                stack.append(i[0])
+                p.path_move(i[0], C, n)
+
+                for food_index in range(len(ListFood)):
+                    if ListFood[food_index].index == p.index:
+                        score += 20
+                        display_score()
+                        ListFood[food_index].destroy(C)
+                        del ListFood[food_index]
+                        break
+
+                for g in ListGhost:
+                    g.move_around_initpos(C, n)
+                    top.update()
+                    if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+                        print(p.index)
+                        stack.pop(-1)
+                        count = len(ListAdjacency[pre])
+                        stack.append(p.index)
+
+                time.sleep(0.2)
+                top.update()
+                break
+            else:
+                count += 1
+
+        if count == len(ListAdjacency[pre]):
+
+            parent_tile = p.find_parent_tile(stack.pop(-1))
+
+            p.path_move(parent_tile, C, n)
+
+            time.sleep(0.2)
+            top.update()
+
+
+
 def RunAlgorithm():
-    nearest_food_tactic1()
-    #highest_cost_tactic()
+
+    # nearest_food_tactic1()
+    # highest_cost_tactic()
+    blind_check_tactic()
+
     C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
 
 def key_pressed(event):
@@ -315,7 +363,7 @@ def key_pressed(event):
 def Play():
     global top, C, p
     global unit, n, m
-    global lst, ListGhost, ListAdjacency, ListFood
+    global lst, ListGhost, ListAdjacency, ListFood, data
     global label_id, score
     top = Tk()
     unit = 25
@@ -323,6 +371,7 @@ def Play():
     ListGhost = []
     ListAdjacency = []
     ListFood = []
+    data = []
     score = 0
 
     handle_input()

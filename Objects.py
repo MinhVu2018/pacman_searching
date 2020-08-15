@@ -18,6 +18,20 @@ class pacman(object):
         self.y = y
         self.index = x*n + y
         self.pic = None
+        self.root = node((self.index, 0)) 
+        self.visited = [(self.index, -1)]
+
+    def check_tile(self, tile):
+        for t in self.visited:
+            if tile == t[0]:
+                return True
+        return False
+
+    def find_parent_tile(self, tile):
+        for t in self.visited:
+            if tile == t[0]:
+                return t[1]
+        return None
 
     def display(self, C):
         C.delete(self.pic)
@@ -61,7 +75,7 @@ class pacman(object):
         ListEvade = []
         for i in range(len(ListAdjacency[self.index])):
             tile = ListAdjacency[self.index][i][0]
-            if get_manhattan_heuristic(tile, ghost.index, n) >= 2:
+            if get_manhattan_heuristic(tile, ghost.index, n) == 1:
                 ListEvade.append(tile)
         
         if len(ListEvade) != 0:
@@ -292,3 +306,13 @@ class food(object):
 
     def uneatable(self, C):
         C.create_line(self.x*unit, y*unit, (self.x+1)*unit, (self.y+1)*unit, fill = "red")
+
+class node(object):
+    def __init__(self, data):
+        self.index = data[0]
+        self.val = data[1]
+        self.children = []
+
+    def add(tiles):
+        for t in tiles:
+            self.children.append(t)
