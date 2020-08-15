@@ -290,68 +290,98 @@ def highest_cost_tactic():
             time.sleep(0.05)
             top.update()
 
-
 def nearest_ghost():
     ListGhost.sort(key = lambda k: np.sqrt((k.x - p.x)**2 + (k.y - p.y)**2))
     return ListGhost[0]
 
-def check_ghost(tile):
+def check_ghost_1(tile):
+    g = nearest_ghost()
+    for i in ListAdjacency[g.index]:
+        if i[0] == tile:
+            return True
+    return False
+
+def check_ghost_2(tile):
     g = nearest_ghost()
     if g.index == tile:
         return True
     for i in ListAdjacency[g.index]:
         if i[0] == tile:
             return True
-
     return False
+
+def move_ghost():
+    for g in ListGhost:
+        if lv == 3:
+            g.move_around_initpos(C, n)
+        elif lv == 4:
+            g.chase(lst, p.index, ListAdjacency,  C, n)
+
+        if g.index == p.index:
+            return False
+    return True
 
 def blind_check_tactic():
     global score
     print("DFS check all map")
 
     stack = [p.index]
-    flag = False
     while len(stack):
         count = 0
         pre = p.index
         for i in ListAdjacency[p.index]:
-            if not p.check_tile(i[0]) and not check_ghost(i[0]):
+            # print(1)
+            if not p.check_tile(i[0]):# and not check_ghost(i[0]):
 
-                p.visited.append( (i[0],p.index) )
-                stack.append(i[0])
-                p.path_move(i[0], C, n)
+                if check_ghost_1(i[0]): # wait 1 step
+                    if not move_ghost():
+                        return
 
-                for food_index in range(len(ListFood)):
-                    if ListFood[food_index].index == p.index:
-                        score += 20
-                        display_score()
-                        ListFood[food_index].destroy(C)
-                        del ListFood[food_index]
-                        break
+                    time.sleep(1)
+                    top.update()
+                    time.sleep(1)
 
-                for g in ListGhost:
-                    g.move_around_initpos(C, n)
+                if not check_ghost_2(i[0]):
+                    p.visited.append( (i[0],p.index) )
+                    stack.append(i[0])
+                    p.path_move(i[0], C, n)
 
-                time.sleep(0.2)
-                top.update()
-                break
+                    for food_index in range(len(ListFood)):
+                        if ListFood[food_index].index == p.index:
+                            score += 20
+                            display_score()
+                            ListFood[food_index].destroy(C)
+                            del ListFood[food_index]
+                            break
+
+                    if not move_ghost():
+                        return
+
+                    time.sleep(0.2)
+                    top.update()
+                    break
+                else:
+                    count += 1
             else:
                 count += 1
 
         if count == len(ListAdjacency[pre]):
-
             parent_tile = p.find_parent_tile(stack.pop(-1))
 
-            if not check_ghost(parent_tile):
+            if check_ghost_1(parent_tile):
+                if not move_ghost():
+                    return
+
+                time.sleep(1)
+                top.update()       
+                time.sleep(1)     
+
+            if not check_ghost_2(parent_tile):
                 p.path_move(parent_tile, C, n)
-
-                for g in ListGhost:
-                    g.move_around_initpos(C, n)
-
+                if not move_ghost():
+                    return
                 time.sleep(0.2)
                 top.update()
-
-
 
 def RunAlgorithm():
 
@@ -513,4 +543,4 @@ def Start(level):
     C.pack()
     menu.mainloop()
 
-Start(3)
+Start(4)
