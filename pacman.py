@@ -290,6 +290,21 @@ def highest_cost_tactic():
             time.sleep(0.05)
             top.update()
 
+
+def nearest_ghost():
+    ListGhost.sort(key = lambda k: np.sqrt((k.x - p.x)**2 + (k.y - p.y)**2))
+    return ListGhost[0]
+
+def check_ghost(tile):
+    g = nearest_ghost()
+    if g.index == tile:
+        return True
+    for i in ListAdjacency[g.index]:
+        if i[0] == tile:
+            return True
+
+    return False
+
 def blind_check_tactic():
     global score
     print("DFS check all map")
@@ -300,7 +315,7 @@ def blind_check_tactic():
         count = 0
         pre = p.index
         for i in ListAdjacency[p.index]:
-            if not p.check_tile(i[0]):
+            if not p.check_tile(i[0]) and not check_ghost(i[0]):
 
                 p.visited.append( (i[0],p.index) )
                 stack.append(i[0])
@@ -316,12 +331,6 @@ def blind_check_tactic():
 
                 for g in ListGhost:
                     g.move_around_initpos(C, n)
-                    top.update()
-                    if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-                        print(p.index)
-                        stack.pop(-1)
-                        count = len(ListAdjacency[pre])
-                        stack.append(p.index)
 
                 time.sleep(0.2)
                 top.update()
@@ -333,10 +342,14 @@ def blind_check_tactic():
 
             parent_tile = p.find_parent_tile(stack.pop(-1))
 
-            p.path_move(parent_tile, C, n)
+            if not check_ghost(parent_tile):
+                p.path_move(parent_tile, C, n)
 
-            time.sleep(0.2)
-            top.update()
+                for g in ListGhost:
+                    g.move_around_initpos(C, n)
+
+                time.sleep(0.2)
+                top.update()
 
 
 
