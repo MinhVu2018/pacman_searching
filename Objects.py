@@ -18,7 +18,6 @@ class pacman(object):
         self.y = y
         self.index = x*n + y
         self.pic = None
-        self.root = node((self.index, 0)) 
         self.visited = [(self.index, -1)]
 
     def check_tile(self, tile):
@@ -84,9 +83,9 @@ class pacman(object):
         else:
             return
 
-    def predict_move(self, ListAdjacency):
-        i = random.randint(0, len(ListAdjacency[self.index]) - 1)
-        return ListAdjacency[self.index][i][0]
+    # def predict_move(self, ListAdjacency):
+    #     i = random.randint(0, len(ListAdjacency[self.index]) - 1)
+    #     return ListAdjacency[self.index][i][0]
 
 # Monster object
 class monster(object):
@@ -109,11 +108,10 @@ class monster(object):
         self.type = t
 
         # type = status0 -> status1 -> status0 ... 
-        # use 1 count var ok ????????
+        
         # type 0: 3 chase -> 5 rand -> 3chase ...
         # type 1: heur > 5 then chase -> heur <= 5 rand -> ...  
         # type 2: type0 but can predict pacman position (use pacman.predict_move())
-        # type 3: 10 up -> 10 right -> 10 down -> 10 left
 
         self.status = 0 
         self.count1 = 0
@@ -130,7 +128,6 @@ class monster(object):
         self.pic = C.create_image(self.x * unit, self.y * unit, image = self.img, anchor = 'nw')
 
     def move(self, direction, C, n):
-
         if direction == "Right":
             self.x += 1
             self.index += n
@@ -285,8 +282,7 @@ class monster(object):
                     
         #     if self.count1 == 40:
         #         self.count1 = 0
-            
-            
+                      
 # Food object
 class food(object):
     def __init__(self, x, y, n):
@@ -306,13 +302,3 @@ class food(object):
 
     def uneatable(self, C):
         C.create_line(self.x*unit, y*unit, (self.x+1)*unit, (self.y+1)*unit, fill = "red")
-
-class node(object):
-    def __init__(self, data):
-        self.index = data[0]
-        self.val = data[1]
-        self.children = []
-
-    def add(tiles):
-        for t in tiles:
-            self.children.append(t)

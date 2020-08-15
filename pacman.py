@@ -40,7 +40,13 @@ def random_Maze():
 
 def handle_input():
     global lst
-    UserInput = "map1.txt"  #input("Enter input file: ")
+    global input_map
+
+    if input_map == "random":
+    	lst = random_Maze()
+    	return
+
+    UserInput = input_map + ".txt"  #input("Enter input file: ")
     f = open(UserInput, "r")
 
     for v in f.readlines():
@@ -48,7 +54,6 @@ def handle_input():
        v = [int(i) for i in v]
         
        lst.append(v)
-    # lst = random_Maze()
 
 def create_maze(C):
     for i in range(n):
@@ -82,7 +87,10 @@ def create_data(C):
         x = number // n
         y = number % n
         if lst[y][x] == 3: # monster position
-            data.append( (number, 0) )
+            if lv == 2:
+            	data.append( (number, 1) ) 
+            else:
+            	data.append( (number, 0) )
         else:
             data.append( (number, lst[y][x]) )
 
@@ -129,28 +137,31 @@ def sort_Food():
 
 def nearest_food_tactic1():
 	global score
+	global searching_time
+
 	while len(ListFood) > 0:
 		sort_Food()
         
-		path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
-        
+		# time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
+		time_temp, frontier, path, cost = A_Star(ListAdjacency, p.index, ListFood[0].index, n)
+		searching_time += int(time_temp)
 		if len(path) == 0 or len(path) > 20: # cannot found 
 			ListFood.remove(ListFood[0])          
 
 		else:
-			if lv == 3:
-				for g in ListGhost:
-					g.ghost_random_move(lst, C, n)
-					if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-						p.runnnn(C, n, ListAdjacency, g)
-						break
+			# if lv == 3:
+			# 	for g in ListGhost:
+			# 		g.ghost_random_move(lst, C, n)
+			# 		if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+			# 			p.runnnn(C, n, ListAdjacency, g)
+			# 			break
 
-			if lv == 4:
-				for g in ListGhost:
-					g.chase(lst, p.index, ListAdjacency,  C, n)
-					if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-						p.runnnn(C, n, ListAdjacency, g)
-						break
+			# if lv == 4:
+			# 	for g in ListGhost:
+			# 		g.chase(lst, p.index, ListAdjacency,  C, n)
+			# 		if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+			# 			p.runnnn(C, n, ListAdjacency, g)
+			# 			break
 
 			p.path_move(path[1], C, n)
 			score -= 1
@@ -196,27 +207,26 @@ def nearest_food_tactic2():
            #     break
            # path = A_Star(ListAdjacency, p.index, ListFood[0].index, n)[2]
         
-        flag = False
+        # flag = False
         while len(path) > 0:
+            # if lv == 3:
+            #     for g in ListGhost:
+            #         g.ghost_random_move(lst, C, n)
 
-            if lv == 3:
-                for g in ListGhost:
-                    g.ghost_random_move(lst, C, n)
-
-                    if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-                        p.runnnn(C, n, ListAdjacency, g)
-                        for food_index in range(len(ListFood)):
-                            if ListFood[food_index].index == p.index:
-                                score += 20
-                                display_score()
-                                ListFood[food_index].destroy(C)
-                                del ListFood[food_index]
-                                break
-                        flag = True
-                        break
+            #         if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+            #             p.runnnn(C, n, ListAdjacency, g)
+            #             for food_index in range(len(ListFood)):
+            #                 if ListFood[food_index].index == p.index:
+            #                     score += 20
+            #                     display_score()
+            #                     ListFood[food_index].destroy(C)
+            #                     del ListFood[food_index]
+            #                     break
+            #             flag = True
+            #             break
                     
-            if flag == True:
-                break
+            # if flag == True:
+            #     break
             
             p.path_move(path[0], C, n)
             path.remove(path[0])
@@ -261,19 +271,19 @@ def highest_cost_tactic():
             return
 
         path = ListPath[index_max]
-        flag = False
+        # flag = False
         while len(path) > 0:
-            if lv == 3:
-                for g in ListGhost:
-                    g.ghost_random_move(lst, C, n)
+            # if lv == 3:
+            #     for g in ListGhost:
+            #         g.ghost_random_move(lst, C, n)
 
-                    if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-                        p.runnnn(C, n, ListAdjacency, g)
-                        flag = True
-                        break    
+            #         if get_manhattan_heuristic(p.index, g.index, n) <= 2:
+            #             p.runnnn(C, n, ListAdjacency, g)
+            #             flag = True
+            #             break    
 
-            if flag == True:
-                break
+            # if flag == True:
+            #     break
             p.path_move(path[0], C, n)
             path.remove(path[0])
             score -= 1
@@ -346,6 +356,8 @@ def blind_check_tactic():
                     p.visited.append( (i[0],p.index) )
                     stack.append(i[0])
                     p.path_move(i[0], C, n)
+                    score -= 1
+                    display_score()
 
                     for food_index in range(len(ListFood)):
                         if ListFood[food_index].index == p.index:
@@ -379,30 +391,40 @@ def blind_check_tactic():
 
             if not check_ghost_2(parent_tile):
                 p.path_move(parent_tile, C, n)
+                score -= 1
+                display_score()
                 if not move_ghost():
                     return
                 time.sleep(0.2)
                 top.update()
 
 def RunAlgorithm():
+	global searching_time
+	searching_time = 0
 
-    # nearest_food_tactic1()
-    # highest_cost_tactic()
-    blind_check_tactic()
+	if lv <= 2:
+		nearest_food_tactic1()
+	else:
+		blind_check_tactic()
 
-    C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
+	C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
+	print("searching_time", searching_time)
+
+def Play_vs_Com():
+	print("not yet")
 
 def key_pressed(event):
-    global p
-    if event.keysym == "Escape":
-        top.destroy()
-        del p    
-        Start(1)
-    elif event.keysym == "Return": # Enter
-        RunAlgorithm()
-    else:
-        p.key_move(event.keysym, C, n)
-        top.update()
+	global p
+
+	if event.keysym == "Escape":
+		top.destroy()
+		del p    
+		Start(1, "map1")
+	elif event.keysym == "Return": # Enter
+		RunAlgorithm()
+	else:
+		p.key_move(event.keysym, C, n)
+		top.update()
 
 def Play():
     global top, C, p
@@ -465,17 +487,22 @@ def lv4_bn():
     global lv
     lv = 4
 
-def Play_bn():
+def Play_bn(textbox):
     global mode
     mode = 'p'
-    control.destroy()
-    Start(lv)
 
-def Run_bn(): 
+    input_map = textbox.get("1.0", "end-1c")
+    control.destroy()
+    Start(lv, input_map)
+
+def Run_bn(textbox): 
     global mode
     mode = 'r'
+
+    input_map = textbox.get("1.0", "end-1c")
+
     control.destroy()
-    Start(lv)
+    Start(lv, input_map)
 
 def Controls():
     menu.destroy()
@@ -507,13 +534,17 @@ def Controls():
     button4.configure(width = 5, activebackground = "#33B5E5", relief = FLAT)
     button4_window = C.create_window(260, 120, anchor=NW, window=button4)
 
-    button5 = Button(control, text = "Play", anchor = W, command = Play_bn)
+    textbox = Text(control, height = 1, width = 10)
+    textbox.pack()
+
+    button5 = Button(control, text = "Play", anchor = W, command = lambda: Play_bn(textbox))
     button5.configure(width = 5, activebackground = "#33B5E5", relief = FLAT)
     button5_window = C.create_window(100, 150, anchor=NW, window=button5)
 
-    button6 = Button(control, text = "Run", anchor = W, command = Run_bn)
+    button6 = Button(control, text = "Run", anchor = W, command = lambda: Run_bn(textbox))
     button6.configure(width = 5, activebackground = "#33B5E5", relief = FLAT)
     button6_window = C.create_window(180, 150, anchor=NW, window=button6)
+
 
     control.mainloop()
 
@@ -528,20 +559,27 @@ def mouseclick(event):
     elif 113 <= x <= 207 and 218 <= y <= 233:
         messagebox.showinfo( "Credit", "Team Pacman:\n Vo Van Quoc Huy\n Vu Cong Minh\n Tu Kien Hoa\n Tu Kien Vinh")
 
-def Start(level):
-    global menu
-    global lv
-    lv = level
-    menu = Tk()
-    menu.title("Menu")
-    img = Image.open("Menu.jfif")
-    C = Canvas(menu, width = img.size[0], height = img.size[1])
-    img = ImageTk.PhotoImage(img)
-    C.create_image(0, 0, image = img, anchor = 'nw')
-    
-    C.bind("<Button-1>", mouseclick)
-    
-    C.pack()
-    menu.mainloop()
+def key_start(event):
+	if event.keysym == "Return":
+		menu.destroy()
+		Play()
 
-Start(4)
+def Start(level, maze):
+	global menu
+	global lv
+	global input_map
+	input_map = maze
+	lv = level
+	menu = Tk()
+	menu.title("Menu")
+	img = Image.open("Menu.jfif")
+	C = Canvas(menu, width = img.size[0], height = img.size[1])
+	img = ImageTk.PhotoImage(img)
+	C.create_image(0, 0, image = img, anchor = 'nw')
+
+	menu.bind("<Key>", key_start)
+	C.bind("<Button-1>", mouseclick)
+	C.pack()
+	menu.mainloop()
+
+Start(1, "map1")

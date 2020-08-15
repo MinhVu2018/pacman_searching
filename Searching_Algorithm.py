@@ -89,7 +89,6 @@ def DLS(adjacency_list, food_pos, explored, parent, current_path, depth):
             current_path.pop()
     return False
         
-
 # Iterative deepning search
 def IDS(adjacency_list, current_position, food_position, max_depth):
     explored_ns = [] # List of explored nodes
@@ -181,7 +180,7 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                                 frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + node[0], node[0]))
                             frontier.sort()
                             parent_list[node[0]] = node_value
-    return "", "", [], 0
+    return len(explored_nodes), frontier, [], 0
 
 def updateFrontier(front, tpl):
     for i in range(len(front)):
