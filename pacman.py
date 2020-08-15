@@ -315,8 +315,9 @@ def move_ghost():
         if lv == 3:
             g.move_around_initpos(C, n)
         elif lv == 4:
-            g.chase(lst, p.index, ListAdjacency,  C, n)
+            g.chase(lst, p.index, ListAdjacency, C, n)
 
+        top.update()
         if g.index == p.index:
             return False
     return True
