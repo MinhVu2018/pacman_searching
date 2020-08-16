@@ -142,7 +142,8 @@ def nearest_food_tactic1():
     while len(ListFood) > 0:
         sort_Food()
         
-        # time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
+        #time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
+        #time_temp, frontier, path = DFS(ListAdjacency, p.index, ListFood[0].index)
         time_temp, frontier, path, cost = A_Star(ListAdjacency, p.index, ListFood[0].index, n)
         searching_time += int(time_temp)
         len_path += len(path)
