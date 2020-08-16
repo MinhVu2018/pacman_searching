@@ -142,9 +142,9 @@ def nearest_food_tactic1():
     while len(ListFood) > 0:
         sort_Food()
         
-        #time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
-        #time_temp, frontier, path = DFS(ListAdjacency, p.index, ListFood[0].index)
-        time_temp, frontier, path, cost = A_Star(ListAdjacency, p.index, ListFood[0].index, n)
+        # time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
+        time_temp, frontier, path = DFS(ListAdjacency, p.index, ListFood[0].index)
+        # time_temp, frontier, path, cost = A_Star(ListAdjacency, p.index, ListFood[0].index, n)
         searching_time += int(time_temp)
         len_path += len(path)
 
@@ -152,20 +152,6 @@ def nearest_food_tactic1():
             ListFood.remove(ListFood[0])          
 
         else:
-			# if lv == 3:
-			# 	for g in ListGhost:
-			# 		g.ghost_random_move(lst, C, n)
-			# 		if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-			# 			p.runnnn(C, n, ListAdjacency, g)
-			# 			break
-
-			# if lv == 4:
-			# 	for g in ListGhost:
-			# 		g.chase(lst, p.index, ListAdjacency,  C, n)
-			# 		if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-			# 			p.runnnn(C, n, ListAdjacency, g)
-			# 			break
-
             p.path_move(path[1], C, n)
             score -= 1
             display_score()
@@ -187,7 +173,7 @@ def nearest_food_tactic2():
         
         path = A_Star(ListAdjacency, p.index, ListFood_currentState[0].index, n)[2]
         
-        while len(path) == 0:
+        while len(path) == 0 or len(path) > 20: # cannot found
             ListFood_currentState.remove(ListFood_currentState[0])
             if len(ListFood_currentState) == 0:
                 break
@@ -212,24 +198,6 @@ def nearest_food_tactic2():
         
         # flag = False
         while len(path) > 0:
-            # if lv == 3:
-            #     for g in ListGhost:
-            #         g.ghost_random_move(lst, C, n)
-
-            #         if get_manhattan_heuristic(p.index, g.index, n) <= 2:
-            #             p.runnnn(C, n, ListAdjacency, g)
-            #             for food_index in range(len(ListFood)):
-            #                 if ListFood[food_index].index == p.index:
-            #                     score += 20
-            #                     display_score()
-            #                     ListFood[food_index].destroy(C)
-            #                     del ListFood[food_index]
-            #                     break
-            #             flag = True
-            #             break
-                    
-            # if flag == True:
-            #     break
             
             p.path_move(path[0], C, n)
             path.remove(path[0])

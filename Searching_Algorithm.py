@@ -35,8 +35,8 @@ def BFS(adjacency_list, begin, food_position):
             for l in  range(len(pathtoexit)):
                 esc_time += l
             return esc_time, expand_nodes, pathtoexit
-    return "", "", ""
-# Depth First Search
+    return len(expand_nodes), expand_nodes, []
+# Depth First Search (not use)
 def DFS(adjacency_list, begin, food_position):
     expand_nodes = []
     parent = []
@@ -69,7 +69,7 @@ def DFS(adjacency_list, begin, food_position):
             for l in  range(len(pathtoexit)):
                 esc_time += l
             return esc_time, expand_nodes, pathtoexit
-    return "", "", ""      
+    return len(expand_nodes), expand_nodes, []     
 ### Iterative deepening search
 # Depth-limited search
 def DLS(adjacency_list, food_pos, explored, parent, current_path, depth):
@@ -89,7 +89,7 @@ def DLS(adjacency_list, food_pos, explored, parent, current_path, depth):
             current_path.pop()
     return False
         
-# Iterative deepning search
+# Iterative deepning search (not use)
 def IDS(adjacency_list, current_position, food_position, max_depth):
     explored_ns = [] # List of explored nodes
     path_fd = [] # List of nodes on the path found
@@ -164,9 +164,9 @@ def A_Star(adjacency_list, current_position, food_position, maze_size):
                         node_list.append(i[1])
                     if node[0] not in node_list:
                         if node[1] == 2:
-                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + 20, node[0]))
+                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size), node[0]))
                         else:
-                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size) + node[0], node[0]))
+                            frontier.append((node_gcost + 1 + get_manhattan_heuristic(node[0], food_position, maze_size), node[0]))
                         parent_list[node[0]] = node_value
                         frontier.sort()
                     if node in node_list:

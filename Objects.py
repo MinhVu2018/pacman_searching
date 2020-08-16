@@ -90,7 +90,7 @@ class pacman(object):
 # Monster object
 class monster(object):
     def __init__(self, imgpath, x, y, n, t):
-        # print("type", t)
+        print("type", t)
         temp = Image.open(imgpath)
         img2 = temp.resize((25, 25), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(img2)
