@@ -18,7 +18,7 @@ class pacman(object):
         self.y = y
         self.index = x*n + y
         self.pic = None
-        self.visited = [(self.index, -1)]
+        self.visited = [(self.index, -1)]   #(current, parent)
 
     def check_tile(self, tile):
         for t in self.visited:
@@ -90,7 +90,7 @@ class pacman(object):
 # Monster object
 class monster(object):
     def __init__(self, imgpath, x, y, n, t):
-        print("type", t)
+        # print("type", t)
         temp = Image.open(imgpath)
         img2 = temp.resize((25, 25), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(img2)
@@ -106,12 +106,6 @@ class monster(object):
         self.left = ImageOps.mirror(img2) # Flip by horizontal
         self.up = img2_up
         self.type = t
-
-        # type = status0 -> status1 -> status0 ... 
-        
-        # type 0: 3 chase -> 5 rand -> 3chase ...
-        # type 1: heur > 5 then chase -> heur <= 5 rand -> ...  
-        # type 2: type0 but can predict pacman position (use pacman.predict_move())
 
         self.status = 0 
         self.count1 = 0

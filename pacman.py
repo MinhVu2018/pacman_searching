@@ -136,19 +136,21 @@ def sort_Food():
     ListFood.sort(key = lambda k: np.sqrt((k.x - p.x)**2 + (k.y - p.y)**2))
 
 def nearest_food_tactic1():
-	global score
-	global searching_time
+    global score
+    global searching_time, len_path
 
-	while len(ListFood) > 0:
-		sort_Food()
+    while len(ListFood) > 0:
+        sort_Food()
         
-		# time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
-		time_temp, frontier, path, cost = A_Star(ListAdjacency, p.index, ListFood[0].index, n)
-		searching_time += int(time_temp)
-		if len(path) == 0 or len(path) > 20: # cannot found 
-			ListFood.remove(ListFood[0])          
+        # time_temp, frontier, path = BFS(ListAdjacency, p.index, ListFood[0].index)
+        time_temp, frontier, path, cost = A_Star(ListAdjacency, p.index, ListFood[0].index, n)
+        searching_time += int(time_temp)
+        len_path += len(path)
 
-		else:
+        if len(path) == 0 or len(path) > 20: # cannot found 
+            ListFood.remove(ListFood[0])          
+
+        else:
 			# if lv == 3:
 			# 	for g in ListGhost:
 			# 		g.ghost_random_move(lst, C, n)
@@ -163,18 +165,18 @@ def nearest_food_tactic1():
 			# 			p.runnnn(C, n, ListAdjacency, g)
 			# 			break
 
-			p.path_move(path[1], C, n)
-			score -= 1
-			display_score()
-			for food_index in range(len(ListFood)):
-				if ListFood[food_index].index == p.index:
-					score += 20
-					display_score()
-					ListFood[food_index].destroy(C)
-					del ListFood[food_index]
-					break
-			time.sleep(0.05)
-			top.update()
+            p.path_move(path[1], C, n)
+            score -= 1
+            display_score()
+            for food_index in range(len(ListFood)):
+                if ListFood[food_index].index == p.index:
+                    score += 20
+                    display_score()
+                    ListFood[food_index].destroy(C)
+                    del ListFood[food_index]
+                    break
+            time.sleep(0.05)
+            top.update()
 
 def nearest_food_tactic2():
     global score
@@ -334,7 +336,7 @@ def move_ghost():
 
 def blind_check_tactic():
     global score
-    print("DFS check all map")
+    # print("DFS check all map")
 
     stack = [p.index]
     while len(stack):
@@ -399,16 +401,18 @@ def blind_check_tactic():
                 top.update()
 
 def RunAlgorithm():
-	global searching_time
-	searching_time = 0
+    global searching_time, len_path
+    searching_time = 0
+    len_path = 0
+    if lv <= 2:
+        nearest_food_tactic1()
+        # highest_cost_tactic()
+    else:
+        blind_check_tactic()
 
-	if lv <= 2:
-		nearest_food_tactic1()
-	else:
-		blind_check_tactic()
-
-	C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
-	print("searching_time", searching_time)
+    C.create_text(m*unit/2 + 5*unit , n*unit/2, fill = "white", text = "END", font=('Arial',30,'bold'))
+    print("searching_time", searching_time)
+    print("Sum len paths", len_path)
 
 def Play_vs_Com():
 	print("not yet")
